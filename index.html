@@ -146,6 +146,15 @@
     @keyframes spin { to { transform:rotate(360deg); } }
     .sheet-tools { padding:0 18px 9px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
     .sheet-tools span { color:var(--muted); font-size:12px; font-weight:650; }
+    .notification-browse { min-width:0; }
+    .notification-search-wrap { padding:0 12px 8px; }
+    .notification-search {
+      width:100%; min-height:42px; padding:0 14px 0 39px; border:1px solid var(--line); border-radius:14px;
+      color:var(--navy); background:rgba(255,255,255,.62); font:inherit; font-size:13px; outline:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23708198' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:13px center;
+    }
+    .notification-search:focus { border-color:rgba(21,120,255,.52); box-shadow:0 0 0 4px rgba(21,120,255,.11); }
     .notification-filters { padding:0 12px 10px; display:flex; gap:7px; overflow-x:auto; scrollbar-width:none; }
     .notification-filters::-webkit-scrollbar { display:none; }
     .filter-button { min-height:36px; padding:0 13px; flex:0 0 auto; border:1px solid var(--line); border-radius:999px; cursor:pointer; color:var(--muted); background:rgba(255,255,255,.52); font-size:12px; font-weight:750; }
@@ -173,8 +182,11 @@
     .update-copy span { display:-webkit-box; margin-top:4px; max-height:2.8em; overflow:hidden; color:var(--muted); font-size:12px; line-height:1.4; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
     .update-time { color:#8190a2; font-size:10px; white-space:nowrap; }
     .notification-settings { padding:12px 18px max(16px,env(safe-area-inset-bottom)); border-top:1px solid rgba(17,54,93,.09); display:flex; align-items:center; justify-content:space-between; gap:14px; background:rgba(255,255,255,.42); }
+    .notification-settings > div:first-child { min-width:0; flex:1; }
     .notification-settings strong { display:block; color:var(--navy); font-size:13px; }
     .notification-settings span { display:block; margin-top:2px; color:var(--muted); font-size:11px; }
+    .notification-setting-actions { flex:0 0 auto; display:flex; align-items:center; gap:7px; }
+    .notification-admin-link { min-height:40px; padding:0 12px; display:inline-flex; align-items:center; border:1px solid var(--line); border-radius:14px; color:var(--navy); background:rgba(255,255,255,.62); font-size:11px; font-weight:800; text-decoration:none; }
     .push-toggle { min-height:40px; padding:0 14px; border:0; border-radius:14px; cursor:pointer; color:white; background:linear-gradient(145deg,#0b5ed7,#1578ff); font-size:12px; font-weight:800; }
     .push-toggle.active { background:linear-gradient(145deg,#087853,#22b77f); }
     .notification-detail-view { position:absolute; z-index:4; inset:0; display:grid; grid-template-rows:auto minmax(0,1fr) auto; background:linear-gradient(160deg,rgba(252,254,255,.98),rgba(237,247,255,.96)); animation:detailIn .3s cubic-bezier(.16,1,.3,1); }
@@ -194,7 +206,7 @@
     .detail-metric small { display:block; color:#708198; font-size:8px; font-weight:850; letter-spacing:.06em; text-transform:uppercase; }
     .detail-metric strong { display:block; margin-top:4px; color:var(--navy); font-size:12px; letter-spacing:-.02em; }
     .detail-body { margin-top:12px; padding:18px; border:1px solid rgba(255,255,255,.96); border-radius:22px; white-space:pre-wrap; color:#334a64; background:rgba(255,255,255,.72); font-size:14px; line-height:1.62; box-shadow:inset 0 1px 0 white; }
-    .detail-actions { padding:11px 12px max(13px,env(safe-area-inset-bottom)); display:grid; grid-template-columns:1fr 1fr; gap:8px; border-top:1px solid rgba(17,54,93,.09); background:rgba(255,255,255,.72); }
+    .detail-actions { padding:11px 12px max(13px,env(safe-area-inset-bottom)); display:grid; grid-template-columns:repeat(3,1fr); gap:8px; border-top:1px solid rgba(17,54,93,.09); background:rgba(255,255,255,.72); }
     .detail-action { min-height:46px; padding:0 12px; border:1px solid var(--line); border-radius:15px; cursor:pointer; color:var(--navy); background:rgba(255,255,255,.76); font-size:12px; font-weight:800; }
     .detail-action.primary { color:white; border-color:transparent; background:linear-gradient(145deg,#0b5ed7,#1578ff); }
     .detail-action.full { grid-column:1/-1; }
@@ -356,16 +368,20 @@
         </header>
       </div>
       <div class="sheet-tools"><span id="notificationMeta">Checking for updates…</span><button id="markAllRead" class="mark-read" type="button">Mark all read</button></div>
-      <nav id="notificationFilters" class="notification-filters" aria-label="Filter notifications">
-        <button class="filter-button active" type="button" data-filter="all" aria-pressed="true">All</button>
-        <button class="filter-button" type="button" data-filter="unread" aria-pressed="false">Unread</button>
-        <button class="filter-button" type="button" data-filter="campaign" aria-pressed="false">Campaign</button>
-        <button class="filter-button" type="button" data-filter="general" aria-pressed="false">General</button>
-      </nav>
+      <div class="notification-browse">
+        <div class="notification-search-wrap"><input id="notificationSearch" class="notification-search" type="search" inputmode="search" autocomplete="off" placeholder="Search notifications" aria-label="Search notifications"></div>
+        <nav id="notificationFilters" class="notification-filters" aria-label="Filter notifications">
+          <button class="filter-button active" type="button" data-filter="all" aria-pressed="true">All</button>
+          <button class="filter-button" type="button" data-filter="unread" aria-pressed="false">Unread</button>
+          <button class="filter-button" type="button" data-filter="campaign" aria-pressed="false">Campaign</button>
+          <button class="filter-button" type="button" data-filter="general" aria-pressed="false">General</button>
+          <button class="filter-button" type="button" data-filter="archived" aria-pressed="false">Archived</button>
+        </nav>
+      </div>
       <div id="notificationList" class="notification-list" aria-live="polite"></div>
       <div class="notification-settings">
         <div><strong>Push Notifications</strong><span id="pushStatus">Get alerts when an update is published</span></div>
-        <button id="pushToggle" class="push-toggle" type="button">Turn On</button>
+        <div class="notification-setting-actions"><a class="notification-admin-link" href="push-admin.html">Admin</a><button id="pushToggle" class="push-toggle" type="button">Turn On</button></div>
       </div>
       <article id="notificationDetail" class="notification-detail-view" aria-label="Notification details" hidden>
         <header class="detail-header">
@@ -383,6 +399,7 @@
         </div>
         <footer class="detail-actions">
           <button id="detailUnread" class="detail-action" type="button">Mark Unread</button>
+          <button id="detailArchive" class="detail-action" type="button">Archive</button>
           <button id="detailShare" class="detail-action primary" type="button">Share</button>
           <button id="detailLink" class="detail-action primary full" type="button" hidden>Open Link ↗</button>
         </footer>
@@ -415,8 +432,10 @@
     const markAllRead = document.getElementById("markAllRead");
     const refreshUpdates = document.getElementById("refreshUpdates");
     const notificationFilters = document.getElementById("notificationFilters");
+    const notificationSearch = document.getElementById("notificationSearch");
     const notificationDetail = document.getElementById("notificationDetail");
     const detailUnread = document.getElementById("detailUnread");
+    const detailArchive = document.getElementById("detailArchive");
     const detailLink = document.getElementById("detailLink");
     const pushToggle = document.getElementById("pushToggle");
     const pushStatus = document.getElementById("pushStatus");
@@ -464,10 +483,19 @@
     restoreCachedUpdates();
 
     let notificationFilter = storageGet("ngcNotificationFilter", "all");
-    if (!["all","unread","campaign","general"].includes(notificationFilter)) notificationFilter = "all";
+    if (!["all","unread","campaign","general","archived"].includes(notificationFilter)) notificationFilter = "all";
+    let notificationSearchValue = storageGet("ngcNotificationSearch", "");
+    notificationSearch.value = notificationSearchValue;
     let selectedUpdate = null;
     let readUpdateIds = new Set();
     try { readUpdateIds = new Set(JSON.parse(storageGet("ngcReadUpdates", "[]"))); } catch {}
+    let archivedUpdateIds = new Set();
+    try { archivedUpdateIds = new Set(JSON.parse(storageGet("ngcArchivedUpdates", "[]"))); } catch {}
+    let installationId = storageGet("ngcInstallationId");
+    if (!/^[a-zA-Z0-9-]{12,80}$/.test(installationId)) {
+      installationId = crypto.randomUUID ? crypto.randomUUID() : "ngc-" + Date.now().toString(36) + Math.random().toString(36).slice(2);
+      storageSet("ngcInstallationId", installationId);
+    }
 
     function showToast(message) {
       clearTimeout(toastTimer);
@@ -508,6 +536,10 @@
       storageSet("ngcReadUpdates", JSON.stringify(Array.from(readUpdateIds).slice(-100)));
     }
 
+    function saveArchivedUpdates() {
+      storageSet("ngcArchivedUpdates", JSON.stringify(Array.from(archivedUpdateIds).slice(-100)));
+    }
+
     function friendlyUpdateTime(value) {
       const date = new Date(value);
       if (!Number.isFinite(date.getTime())) return "";
@@ -545,20 +577,27 @@
     }
 
     function matchesNotificationFilter(update) {
-      if (notificationFilter === "unread") return !readUpdateIds.has(update.id);
-      if (notificationFilter === "campaign") return !isGeneralUpdate(update);
-      if (notificationFilter === "general") return isGeneralUpdate(update);
-      return true;
+      const archived = archivedUpdateIds.has(update.id);
+      if (notificationFilter === "archived" && !archived) return false;
+      if (notificationFilter !== "archived" && archived) return false;
+      if (notificationFilter === "unread" && readUpdateIds.has(update.id)) return false;
+      if (notificationFilter === "campaign" && isGeneralUpdate(update)) return false;
+      if (notificationFilter === "general" && !isGeneralUpdate(update)) return false;
+      const query = notificationSearchValue.trim().toLocaleLowerCase();
+      if (!query) return true;
+      return [update.title, update.summary, update.body, update.campaign_title]
+        .filter(Boolean).join(" ").toLocaleLowerCase().includes(query);
     }
 
     function updateFilterUI() {
       const counts = {
-        all: campaignUpdates.length,
-        unread: campaignUpdates.filter(update => !readUpdateIds.has(update.id)).length,
-        campaign: campaignUpdates.filter(update => !isGeneralUpdate(update)).length,
-        general: campaignUpdates.filter(isGeneralUpdate).length
+        all: campaignUpdates.filter(update => !archivedUpdateIds.has(update.id)).length,
+        unread: campaignUpdates.filter(update => !archivedUpdateIds.has(update.id) && !readUpdateIds.has(update.id)).length,
+        campaign: campaignUpdates.filter(update => !archivedUpdateIds.has(update.id) && !isGeneralUpdate(update)).length,
+        general: campaignUpdates.filter(update => !archivedUpdateIds.has(update.id) && isGeneralUpdate(update)).length,
+        archived: campaignUpdates.filter(update => archivedUpdateIds.has(update.id)).length
       };
-      const labels = { all:"All", unread:"Unread", campaign:"Campaign", general:"General" };
+      const labels = { all:"All", unread:"Unread", campaign:"Campaign", general:"General", archived:"Archived" };
       notificationFilters.querySelectorAll("[data-filter]").forEach(button => {
         const id = button.dataset.filter;
         const active = id === notificationFilter;
@@ -591,12 +630,13 @@
     }
 
     function refreshUnreadUI() {
-      const unread = campaignUpdates.filter(update => !readUpdateIds.has(update.id)).length;
+      const activeUpdates = campaignUpdates.filter(update => !archivedUpdateIds.has(update.id));
+      const unread = activeUpdates.filter(update => !readUpdateIds.has(update.id)).length;
       notificationButton.classList.toggle("has-unread", unread > 0);
       notificationCount.textContent = unread > 9 ? "9+" : String(unread);
       notificationCount.hidden = unread === 0;
       syncSystemBadge(unread);
-      notificationMeta.textContent = campaignUpdates.length
+      notificationMeta.textContent = activeUpdates.length
         ? (unread ? unread + " unread update" + (unread === 1 ? "" : "s") : "You're all caught up")
         : "No updates yet";
       markAllRead.hidden = unread === 0;
@@ -700,6 +740,7 @@
       badgeSyncReady = true;
       readUpdateIds.add(update.id);
       saveReadUpdates();
+      trackNotificationEvent(update.id, "opened");
       const general = isGeneralUpdate(update);
       const category = document.getElementById("detailCategory");
       category.className = "update-category" + (general ? " general" : "");
@@ -729,6 +770,7 @@
       detailLink.textContent = general ? "Open Link ↗" : "View Latest Ranking ↗";
       detailLink.dataset.url = targetUrl;
       detailUnread.textContent = "Mark Unread";
+      detailArchive.textContent = archivedUpdateIds.has(update.id) ? "Unarchive" : "Archive";
       notificationDetail.hidden = false;
       renderUpdates();
       setTimeout(() => document.getElementById("detailBack").focus({ preventScroll:true }), 30);
@@ -753,6 +795,24 @@
         detailUnread.textContent = "Mark Unread";
         showToast("Marked as read.");
       }
+      saveReadUpdates();
+      renderUpdates();
+    }
+
+    function toggleSelectedArchiveState() {
+      if (!selectedUpdate) return;
+      badgeSyncReady = true;
+      if (archivedUpdateIds.has(selectedUpdate.id)) {
+        archivedUpdateIds.delete(selectedUpdate.id);
+        detailArchive.textContent = "Archive";
+        showToast("Moved back to notifications.");
+      } else {
+        archivedUpdateIds.add(selectedUpdate.id);
+        readUpdateIds.add(selectedUpdate.id);
+        detailArchive.textContent = "Unarchive";
+        showToast("Notification archived.");
+      }
+      saveArchivedUpdates();
       saveReadUpdates();
       renderUpdates();
     }
@@ -890,6 +950,11 @@
       return response.json();
     }
 
+    function trackNotificationEvent(updateId, eventType) {
+      if (!updateId || !installationId) return;
+      callPushApi({ action:"track", updateId, installationId, eventType }).catch(() => {});
+    }
+
     async function toggleNotifications() {
       if (notificationBusy) return;
       if (isIOS() && !isStandalone()) {
@@ -986,12 +1051,21 @@
       storageSet("ngcNotificationFilter", notificationFilter);
       renderUpdates();
     });
+    notificationSearch.addEventListener("input", () => {
+      notificationSearchValue = notificationSearch.value;
+      storageSet("ngcNotificationSearch", notificationSearchValue);
+      renderUpdates();
+    });
     document.getElementById("detailBack").addEventListener("click", closeUpdateDetail);
     detailUnread.addEventListener("click", toggleSelectedReadState);
+    detailArchive.addEventListener("click", toggleSelectedArchiveState);
     document.getElementById("detailShare").addEventListener("click", shareSelectedUpdate);
     detailLink.addEventListener("click", () => {
       const target = detailLink.dataset.url;
-      if (target) window.open(target, "_blank", "noopener,noreferrer");
+      if (target) {
+        if (selectedUpdate) trackNotificationEvent(selectedUpdate.id, "link_clicked");
+        window.open(target, "_blank", "noopener,noreferrer");
+      }
     });
     document.getElementById("notificationClose").addEventListener("click", () => closeNotificationCentre());
     notificationBackdrop.addEventListener("click", event => {
