@@ -1,4 +1,4 @@
-const CACHE_NAME = "ngc-super-app-v5";
+const CACHE_NAME = "ngc-super-app-v6";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -76,7 +76,12 @@ self.addEventListener("push", event => {
     renotify: true,
     data: { url: payload.url || "./index.html" }
   };
-  event.waitUntil(self.registration.showNotification(title, options));
+  event.waitUntil(Promise.all([
+    self.registration.showNotification(title, options),
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then(windows => {
+      windows.forEach(client => client.postMessage({ type: "ngc-update" }));
+    })
+  ]));
 });
 
 self.addEventListener("notificationclick", event => {

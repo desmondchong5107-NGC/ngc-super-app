@@ -430,6 +430,7 @@
     let toastTimer;
     let notificationBusy = false;
     let updatesLoading = false;
+    let lastSuccessfulUpdateFetch = 0;
     let campaignUpdates = [];
     function storageGet(key, fallback = "") {
       try { return localStorage.getItem(key) ?? fallback; }
@@ -440,6 +441,21 @@
       try { localStorage.setItem(key, value); }
       catch {}
     }
+
+    function restoreCachedUpdates() {
+      try {
+        const cached = JSON.parse(storageGet("ngcCampaignUpdates", "[]"));
+        campaignUpdates = Array.isArray(cached) ? cached : [];
+      } catch {
+        campaignUpdates = [];
+      }
+    }
+
+    function saveCachedUpdates() {
+      storageSet("ngcCampaignUpdates", JSON.stringify(campaignUpdates.slice(0, 30)));
+    }
+
+    restoreCachedUpdates();
 
     let notificationFilter = storageGet("ngcNotificationFilter", "all");
     if (!["all","unread","campaign","general"].includes(notificationFilter)) notificationFilter = "all";
@@ -535,6 +551,10 @@
       notificationButton.classList.toggle("has-unread", unread > 0);
       notificationCount.textContent = unread > 9 ? "9+" : String(unread);
       notificationCount.hidden = unread === 0;
+      try {
+        if (unread > 0 && "setAppBadge" in navigator) navigator.setAppBadge(unread).catch(() => {});
+        if (unread === 0 && "clearAppBadge" in navigator) navigator.clearAppBadge().catch(() => {});
+      } catch {}
       notificationMeta.textContent = campaignUpdates.length
         ? (unread ? unread + " unread update" + (unread === 1 ? "" : "s") : "You're all caught up")
         : "No updates yet";
@@ -731,6 +751,8 @@
         if (!response.ok) throw new Error("Updates unavailable");
         const result = await response.json();
         campaignUpdates = Array.isArray(result.updates) ? result.updates : [];
+        lastSuccessfulUpdateFetch = Date.now();
+        saveCachedUpdates();
       } catch {
         if (!campaignUpdates.length) notificationMeta.textContent = "Updates are temporarily unavailable";
         else showToast("Could not refresh updates.");
@@ -740,6 +762,12 @@
         refreshUpdates.classList.remove("loading");
       }
       renderUpdates();
+    }
+
+    function refreshUpdatesIfStale() {
+      if (document.hidden || updatesLoading || !navigator.onLine) return;
+      if (Date.now() - lastSuccessfulUpdateFetch < 5000) return;
+      loadCampaignUpdates(true);
     }
 
     function openNotificationCentre(updateHash = true) {
@@ -940,6 +968,9 @@
       }
     });
     window.addEventListener("offline", () => showToast("You are offline. Calculators still work."));
+    window.addEventListener("online", refreshUpdatesIfStale);
+    window.addEventListener("pageshow", refreshUpdatesIfStale);
+    document.addEventListener("visibilitychange", refreshUpdatesIfStale);
     document.getElementById("back").addEventListener("click", () => showHome());
     window.addEventListener("popstate", () => {
       const id = location.hash.slice(1);
@@ -958,8 +989,13 @@
     if (apps[initial]) openApp(initial, false);
     if (initial === "notifications") openNotificationCentre(false);
     loadCampaignConfig();
-    loadCampaignUpdates();
+    renderUpdates();
+    loadCampaignUpdates(true);
+    setTimeout(refreshUpdatesIfStale, 1800);
     if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
+      navigator.serviceWorker.addEventListener("message", event => {
+        if (event.data?.type === "ngc-update") loadCampaignUpdates(true);
+      });
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("service-worker.js").then(refreshNotificationUI).catch(() => {});
       });
