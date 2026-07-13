@@ -162,6 +162,8 @@
     }
     .update-card:active { transform:scale(.985); }
     .update-card.unread { background:linear-gradient(145deg,rgba(229,244,255,.96),rgba(255,255,255,.78)); }
+    .update-card.pinned { border-color:rgba(211,153,39,.36); box-shadow:inset 0 1px 0 white,0 12px 28px -20px rgba(161,104,15,.42); }
+    .update-card.pinned .update-category { color:#8a5b0c; background:rgba(229,169,60,.14); }
     .update-symbol { position:relative; width:42px; height:42px; display:grid; place-items:center; border-radius:14px; color:white; background:linear-gradient(145deg,#0b5ed7,#3f91ff); font-size:18px; font-weight:850; box-shadow:0 9px 20px -10px rgba(21,120,255,.55),inset 0 1px 0 rgba(255,255,255,.34); }
     .update-symbol.general { background:linear-gradient(145deg,#087853,#35c893); }
     .update-card.unread .update-symbol::after { content:""; position:absolute; right:-3px; top:-3px; width:9px; height:9px; border-radius:50%; background:#ff3b30; border:2px solid white; }
@@ -451,7 +453,7 @@
     function restoreCachedUpdates() {
       try {
         const cached = JSON.parse(storageGet("ngcCampaignUpdates", "[]"));
-        campaignUpdates = Array.isArray(cached) ? cached : [];
+        campaignUpdates = normalizeUpdates(cached);
       } catch {
         campaignUpdates = [];
       }
@@ -526,6 +528,22 @@
 
     function isGeneralUpdate(update) {
       return update.campaign_key === "general" || update.payload?.type === "general";
+    }
+
+    function isUpdateActive(update) {
+      const expiresAt = update?.payload?.expiresAt;
+      if (typeof expiresAt !== "string" || !expiresAt) return true;
+      const timestamp = Date.parse(expiresAt);
+      return !Number.isFinite(timestamp) || timestamp > Date.now();
+    }
+
+    function normalizeUpdates(updates) {
+      if (!Array.isArray(updates)) return [];
+      return updates.filter(isUpdateActive).sort((left, right) => {
+        const pinned = Number(Boolean(right.payload?.pinned)) - Number(Boolean(left.payload?.pinned));
+        if (pinned) return pinned;
+        return Date.parse(right.published_at || "") - Date.parse(left.published_at || "");
+      });
     }
 
     function matchesNotificationFilter(update) {
@@ -618,8 +636,9 @@
         card.className = "update-card";
         card.tabIndex = 0;
         card.setAttribute("role", "button");
-        card.setAttribute("aria-label", "Open " + (update.title || "notification"));
+        card.setAttribute("aria-label", (update.payload?.pinned ? "Pinned. " : "") + "Open " + (update.title || "notification"));
         card.classList.toggle("unread", !readUpdateIds.has(update.id));
+        card.classList.toggle("pinned", Boolean(update.payload?.pinned));
         const symbol = document.createElement("span");
         symbol.className = "update-symbol" + (general ? " general" : "");
         symbol.textContent = general ? "i" : "⚑";
@@ -628,7 +647,7 @@
         copy.className = "update-copy";
         const category = document.createElement("small");
         category.className = "update-category" + (general ? " general" : "");
-        category.textContent = update.campaign_title || (update.campaign_key === "general" ? "General Info" : "Campaign");
+        category.textContent = (update.payload?.pinned ? "PINNED · " : "") + (update.campaign_title || (update.campaign_key === "general" ? "General Info" : "Campaign"));
         const title = document.createElement("strong");
         title.textContent = update.title || update.campaign_title || "Campaign Update";
         const summary = document.createElement("span");
@@ -686,7 +705,7 @@
       const general = isGeneralUpdate(update);
       const category = document.getElementById("detailCategory");
       category.className = "update-category" + (general ? " general" : "");
-      category.textContent = update.campaign_title || (general ? "General Info" : "Campaign");
+      category.textContent = (update.payload?.pinned ? "PINNED · " : "") + (update.campaign_title || (general ? "General Info" : "Campaign"));
       document.getElementById("detailHeaderTitle").textContent = general ? "General Info" : "Campaign Update";
       document.getElementById("detailDate").textContent = friendlyFullDate(update.published_at);
       document.getElementById("detailTitle").textContent = update.title || "Update";
@@ -777,7 +796,7 @@
         });
         if (!response.ok) throw new Error("Updates unavailable");
         const result = await response.json();
-        campaignUpdates = Array.isArray(result.updates) ? result.updates : [];
+        campaignUpdates = normalizeUpdates(result.updates);
         badgeSyncReady = true;
         lastSuccessfulUpdateFetch = Date.now();
         saveCachedUpdates();

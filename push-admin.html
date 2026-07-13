@@ -48,8 +48,34 @@
     .status.success { color:#087952; }
     .status.error { color:#c5324d; }
     .preview { white-space:pre-wrap; word-break:break-word; min-height:160px; padding:16px; margin-top:12px; border:1px solid rgba(255,255,255,.94); border-radius:18px; background:rgba(255,255,255,.64); font-size:14px; line-height:1.55; }
+    .option-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+    .option-card { min-height:72px; margin:0; padding:12px 13px; display:flex; align-items:center; gap:11px; border:1px solid var(--line); border-radius:17px; color:var(--navy); background:rgba(255,255,255,.62); font-size:13px; font-weight:800; letter-spacing:0; text-transform:none; }
+    .option-card input { width:22px; min-height:22px; height:22px; margin:0; accent-color:var(--blue); box-shadow:none; }
+    .option-card small { display:block; margin-top:2px; color:var(--muted); font-size:10px; font-weight:650; line-height:1.35; }
+    .option-field { padding:10px 12px 12px; border:1px solid var(--line); border-radius:17px; background:rgba(255,255,255,.62); }
+    .option-field label { margin-top:0; }
+    .option-field input { min-height:42px; padding:8px 10px; font-size:13px; }
+    .draft-actions { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:12px; }
+    .draft-actions button { min-height:44px; }
+    .phone-preview { margin-top:14px; padding:16px; overflow:hidden; border-radius:24px; background:linear-gradient(145deg,#173052,#6787ad); box-shadow:inset 0 1px 0 rgba(255,255,255,.24); }
+    .phone-preview-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; color:white; font-size:11px; font-weight:800; }
+    .push-card { padding:12px; display:grid; grid-template-columns:38px minmax(0,1fr) auto; gap:10px; align-items:start; border:1px solid rgba(255,255,255,.7); border-radius:18px; background:rgba(248,251,255,.88); box-shadow:0 10px 28px rgba(3,18,38,.2); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); }
+    .push-card img { width:38px; height:38px; padding:5px; border-radius:10px; background:linear-gradient(145deg,#0b315c,#1578ff); }
+    .push-copy { min-width:0; }
+    .push-copy small { display:block; overflow:hidden; color:#52657d; font-size:9px; font-weight:850; text-overflow:ellipsis; white-space:nowrap; text-transform:uppercase; }
+    .push-copy strong { display:block; margin-top:2px; overflow:hidden; color:var(--navy); font-size:13px; line-height:1.25; text-overflow:ellipsis; white-space:nowrap; }
+    .push-copy span { display:-webkit-box; margin-top:3px; overflow:hidden; color:#53657a; font-size:11px; line-height:1.35; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
+    .push-time { color:#6c7c8e; font-size:9px; white-space:nowrap; }
+    .history-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+    .history-head button { min-height:42px; padding:0 13px; }
+    .history-list { display:grid; gap:9px; margin-top:13px; }
+    .history-item { padding:13px; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; border:1px solid rgba(255,255,255,.9); border-radius:18px; background:rgba(255,255,255,.58); }
+    .history-item strong { display:block; color:var(--navy); font-size:14px; }
+    .history-item span { display:block; margin-top:4px; color:var(--muted); font-size:11px; line-height:1.45; }
+    .history-item button { min-height:38px; padding:0 11px; align-self:center; color:#b3263f; border:1px solid rgba(179,38,63,.16); background:rgba(255,255,255,.72); box-shadow:none; font-size:11px; }
+    .history-empty { padding:22px; color:var(--muted); text-align:center; font-size:13px; }
     .hidden { display:none !important; }
-    @media (max-width:560px) { .glass{padding:17px}.grid3{grid-template-columns:1fr}.actions{grid-template-columns:1fr}.movement-fields{grid-template-columns:1fr 1fr}.movement-fields input:first-child{grid-column:1/-1}header{align-items:flex-start}.back{font-size:0}.back::after{content:"← App";font-size:13px} }
+    @media (max-width:560px) { .glass{padding:17px}.grid3,.option-grid{grid-template-columns:1fr}.actions{grid-template-columns:1fr}.movement-fields{grid-template-columns:1fr 1fr}.movement-fields input:first-child{grid-column:1/-1}header{align-items:flex-start}.back{font-size:0}.back::after{content:"← App";font-size:13px}.push-card{grid-template-columns:36px minmax(0,1fr) auto}.history-head{display:block}.history-head button{width:100%;margin-top:12px} }
     @media (prefers-reduced-transparency:reduce) { .glass { background:#fff; backdrop-filter:none; -webkit-backdrop-filter:none; } }
   </style>
 </head>
@@ -101,6 +127,15 @@
       <label for="summary">Push Preview</label><textarea id="summary" maxlength="220"></textarea>
       <label for="body">Full Update</label><textarea id="body" style="min-height:360px"></textarea>
       <label for="targetUrl">Latest Ranking Link</label><input id="targetUrl" type="url">
+      <div class="option-grid">
+        <label class="option-card" for="campaignPinned"><input id="campaignPinned" type="checkbox"><span>Pin notification<small>Keep it above newer notifications.</small></span></label>
+        <div class="option-field"><label for="campaignExpiresAt">Automatically hide after</label><input id="campaignExpiresAt" type="datetime-local"></div>
+      </div>
+      <div class="phone-preview" aria-label="iPhone notification preview">
+        <div class="phone-preview-top"><span>iPhone Preview</span><span>now</span></div>
+        <div class="push-card"><img src="ngc-logo.png" alt=""><div class="push-copy"><small id="campaignPreviewCategory">NGC Super App</small><strong id="campaignPreviewTitle">Campaign Update</strong><span id="campaignPreviewSummary">Your push preview will appear here.</span></div><span class="push-time">now</span></div>
+      </div>
+      <div class="draft-actions"><button id="saveCampaignDraft" class="secondary" type="button">Save Draft</button><button id="clearCampaignDraft" class="secondary" type="button">Clear Draft</button></div>
       <label for="token">Private Admin Key</label><input id="token" type="password" autocomplete="current-password" placeholder="Paste your private admin key">
       <div class="actions">
         <button id="publish" type="button">Publish to App</button>
@@ -128,6 +163,15 @@
       <textarea id="generalBody" style="min-height:260px" placeholder="Add the complete details, date, time, venue and anything the team needs to prepare."></textarea>
       <label for="generalUrl">Optional Link</label>
       <input id="generalUrl" type="url" inputmode="url" placeholder="https://">
+      <div class="option-grid">
+        <label class="option-card" for="generalPinned"><input id="generalPinned" type="checkbox"><span>Pin notification<small>Keep important information at the top.</small></span></label>
+        <div class="option-field"><label for="generalExpiresAt">Automatically hide after</label><input id="generalExpiresAt" type="datetime-local"></div>
+      </div>
+      <div class="phone-preview" aria-label="iPhone notification preview">
+        <div class="phone-preview-top"><span>iPhone Preview</span><span>now</span></div>
+        <div class="push-card"><img src="ngc-logo.png" alt=""><div class="push-copy"><small id="generalPreviewCategory">GENERAL INFO</small><strong id="generalPreviewTitle">Notification Title</strong><span id="generalPreviewSummary">Your push preview will appear here.</span></div><span class="push-time">now</span></div>
+      </div>
+      <div class="draft-actions"><button id="saveGeneralDraft" class="secondary" type="button">Save Draft</button><button id="clearGeneralDraft" class="secondary" type="button">Clear Draft</button></div>
       <label for="generalToken">Private Admin Key</label>
       <input id="generalToken" type="password" autocomplete="current-password" placeholder="Paste your private admin key">
       <div class="actions">
@@ -135,6 +179,14 @@
         <button id="generalShare" class="share" type="button">Share to WhatsApp</button>
       </div>
       <p id="generalStatus" class="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="glass">
+      <div class="history-head"><div><h2>Recent Notifications</h2><p class="hint">Review delivery results or remove an update from the App. Removing it cannot retract a push already delivered.</p></div><button id="loadHistory" class="secondary" type="button">Load History</button></div>
+      <label for="historyToken">Private Admin Key</label>
+      <input id="historyToken" type="password" autocomplete="current-password" placeholder="Paste your private admin key">
+      <p id="historyStatus" class="status" role="status" aria-live="polite"></p>
+      <div id="historyList" class="history-list"><div class="history-empty">Enter your Admin Key and load the latest notifications.</div></div>
     </section>
   </main>
 
@@ -144,7 +196,185 @@
     const PUSH_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6cWdhZGVtdnZ0YnB0aHFveG9qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MTY5NTQsImV4cCI6MjA5OTQ5Mjk1NH0.dN9pXoMyVL0cflWtpXWO1ukgaVDS-fy8dpcBV_9BHuo";
     const SUMMARY_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqaHdib3ZxdGN1amp3dmpuaXl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU1MDYyMjksImV4cCI6MjA4MTA4MjIyOX0.GBf7fuVOE9m3jCcPGSaMWrfWyaRG6Bo3p5kb8wE6ZFo";
     const $ = id => document.getElementById(id);
+    const DRAFT_KEY = "ngcNotificationAdminDraftV2";
     let report = null;
+    let draftTimer = 0;
+
+    function expiryIso(id) {
+      const value = $(id).value;
+      if (!value) return null;
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? null : date.toISOString();
+    }
+
+    function updatePreviews() {
+      $("campaignPreviewCategory").textContent = ($("campaignPinned").checked ? "PINNED · " : "") + (report?.campaignTitle || "Campaign");
+      $("campaignPreviewTitle").textContent = $("title").value.trim() || "Campaign Update";
+      $("campaignPreviewSummary").textContent = $("summary").value.trim() || "Your push preview will appear here.";
+      $("generalPreviewCategory").textContent = ($("generalPinned").checked ? "PINNED · " : "") + $("generalCategory").value;
+      $("generalPreviewTitle").textContent = $("generalTitle").value.trim() || "Notification Title";
+      $("generalPreviewSummary").textContent = $("generalSummary").value.trim() || "Your push preview will appear here.";
+    }
+
+    function draftSnapshot() {
+      return {
+        report,
+        movementDraft: report ? movementRows() : [],
+        fields: {
+          startDate: $("startDate").value,
+          endDate: $("endDate").value,
+          submissions: $("submissions").value,
+          referrals: $("referrals").value,
+          manualNotes: $("manualNotes").value,
+          title: $("title").value,
+          summary: $("summary").value,
+          body: $("body").value,
+          targetUrl: $("targetUrl").value,
+          campaignPinned: $("campaignPinned").checked,
+          campaignExpiresAt: $("campaignExpiresAt").value,
+          generalCategory: $("generalCategory").value,
+          generalTitle: $("generalTitle").value,
+          generalSummary: $("generalSummary").value,
+          generalBody: $("generalBody").value,
+          generalUrl: $("generalUrl").value,
+          generalPinned: $("generalPinned").checked,
+          generalExpiresAt: $("generalExpiresAt").value
+        },
+        savedAt: new Date().toISOString()
+      };
+    }
+
+    function saveDraft(mode, announce = true) {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(draftSnapshot()));
+        if (announce) setStatus(mode === "general" ? "generalStatus" : "publishStatus", "Draft saved on this device.", "success");
+      } catch {
+        if (announce) setStatus(mode === "general" ? "generalStatus" : "publishStatus", "Draft could not be saved.", "error");
+      }
+    }
+
+    function scheduleDraftSave() {
+      clearTimeout(draftTimer);
+      draftTimer = setTimeout(() => saveDraft("campaign", false), 350);
+      updatePreviews();
+    }
+
+    function clearDraft(mode) {
+      localStorage.removeItem(DRAFT_KEY);
+      if (mode === "general") {
+        ["generalTitle","generalSummary","generalBody","generalUrl","generalExpiresAt"].forEach(id => $(id).value = "");
+        $("generalPinned").checked = false;
+        setStatus("generalStatus", "General Info draft cleared.", "success");
+      } else {
+        ["title","summary","body","targetUrl","campaignExpiresAt"].forEach(id => $(id).value = "");
+        $("campaignPinned").checked = false;
+        $("publishSection").classList.add("hidden");
+        setStatus("loadStatus", "Campaign draft cleared.", "success");
+      }
+      updatePreviews();
+    }
+
+    function restoreDraft() {
+      try {
+        const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+        if (!draft?.fields) return;
+        const fields = draft.fields;
+        Object.entries(fields).forEach(([id, value]) => {
+          const element = $(id);
+          if (!element) return;
+          if (element.type === "checkbox") element.checked = Boolean(value);
+          else element.value = value == null ? "" : String(value);
+        });
+        if (draft.report && typeof draft.report === "object") {
+          report = draft.report;
+          $("previousTotal").textContent = money(report.previousTotal);
+          $("newAmount").textContent = "+" + money(report.newAmount);
+          $("currentTotal").textContent = money(report.currentTotal);
+          $("metrics").classList.remove("hidden");
+          $("editSection").classList.remove("hidden");
+          renderMovements();
+          (draft.movementDraft || []).forEach((item, index) => {
+            const row = document.querySelector('.movement[data-index="' + index + '"]');
+            if (!row) return;
+            row.querySelector(".agent-name").value = item.displayName || "";
+            row.querySelector(".agent-submissions").value = String(item.submissions || 0);
+            row.querySelector(".agent-referrals").value = String(item.referrals || 0);
+          });
+        }
+        if ($("body").value.trim()) $("publishSection").classList.remove("hidden");
+        updatePreviews();
+      } catch {
+        localStorage.removeItem(DRAFT_KEY);
+      }
+    }
+
+    function syncAdminTokens(value) {
+      ["token","generalToken","historyToken"].forEach(id => {
+        if ($(id).value !== value) $(id).value = value;
+      });
+      try { sessionStorage.setItem("ngcAdminKey", value); } catch {}
+    }
+
+    async function adminRequest(payload) {
+      const response = await fetch(PUSH_API, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json", "apikey":PUSH_KEY, "Authorization":"Bearer " + PUSH_KEY },
+        body:JSON.stringify(payload)
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Request failed");
+      return result;
+    }
+
+    function historyDate(value) {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? "" : date.toLocaleString("en-MY", { dateStyle:"medium", timeStyle:"short" });
+    }
+
+    function renderHistory(updates) {
+      $("historyList").textContent = "";
+      if (!updates.length) {
+        const empty = document.createElement("div");
+        empty.className = "history-empty";
+        empty.textContent = "No notifications have been published yet.";
+        $("historyList").appendChild(empty);
+        return;
+      }
+      updates.forEach(update => {
+        const item = document.createElement("article");
+        item.className = "history-item";
+        const copy = document.createElement("div");
+        const title = document.createElement("strong");
+        title.textContent = (update.payload?.pinned ? "📌 " : "") + update.title;
+        const meta = document.createElement("span");
+        const delivery = update.payload?.delivery;
+        const expires = update.payload?.expiresAt ? " · hides " + historyDate(update.payload.expiresAt) : "";
+        meta.textContent = update.campaign_title + " · " + historyDate(update.published_at) + (delivery ? " · delivered " + delivery.sent + "/" + delivery.total : "") + expires;
+        copy.append(title, meta);
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.dataset.deleteId = update.id;
+        remove.textContent = "Remove";
+        item.append(copy, remove);
+        $("historyList").appendChild(item);
+      });
+    }
+
+    async function loadHistory() {
+      const token = $("historyToken").value.trim();
+      if (!token) return setStatus("historyStatus", "Enter your private admin key.", "error");
+      $("loadHistory").disabled = true;
+      setStatus("historyStatus", "Loading recent notifications…");
+      try {
+        const result = await adminRequest({ action:"history", adminToken:token });
+        renderHistory(result.updates || []);
+        setStatus("historyStatus", (result.subscribers || 0) + " active push subscription(s).", "success");
+      } catch (error) {
+        setStatus("historyStatus", error.message === "Unauthorized" ? "Admin key is incorrect." : (error.message || "Could not load history."), "error");
+      } finally {
+        $("loadHistory").disabled = false;
+      }
+    }
 
     function switchMode(mode) {
       const campaign = mode === "campaign";
@@ -296,7 +526,10 @@
     async function publishUpdate() {
       const token = $("token").value.trim();
       if (!token) return setStatus("publishStatus", "Enter your private admin key.", "error");
+      if (!report) return setStatus("publishStatus", "Load or restore the campaign results first.", "error");
       if (!$("title").value.trim() || !$("summary").value.trim() || !$("body").value.trim()) return setStatus("publishStatus", "Title and update text are required.", "error");
+      const expiresAt = expiryIso("campaignExpiresAt");
+      if ($("campaignExpiresAt").value && (!expiresAt || Date.parse(expiresAt) <= Date.now())) return setStatus("publishStatus", "Choose a future expiry time.", "error");
       $("publish").disabled = true;
       setStatus("publishStatus", "Publishing to Notification Centre…");
       try {
@@ -320,7 +553,9 @@
               newAmount:report.newAmount,
               newCases:report.newCases,
               totalCases:report.totalCases,
-              movements:movementRows()
+              movements:movementRows(),
+              pinned:$("campaignPinned").checked,
+              expiresAt
             }
           })
         });
@@ -328,6 +563,8 @@
         if (!response.ok) throw new Error(result.error || "Publish failed");
         const push = result.push || {};
         setStatus("publishStatus", "Published. Push sent to " + (push.sent || 0) + " of " + (push.total || 0) + " subscribed device(s).", "success");
+        localStorage.removeItem(DRAFT_KEY);
+        if ($("historyToken").value.trim()) loadHistory();
       } catch (error) {
         setStatus("publishStatus", error.message === "Unauthorized" ? "Admin key is incorrect." : (error.message || "Could not publish."), "error");
       } finally {
@@ -357,6 +594,8 @@
       const body = $("generalBody").value.trim();
       if (!token) return setStatus("generalStatus", "Enter your private admin key.", "error");
       if (!title || !summary || !body) return setStatus("generalStatus", "Title, Push Preview and Full Information are required.", "error");
+      const expiresAt = expiryIso("generalExpiresAt");
+      if ($("generalExpiresAt").value && (!expiresAt || Date.parse(expiresAt) <= Date.now())) return setStatus("generalStatus", "Choose a future expiry time.", "error");
       $("generalPublish").disabled = true;
       setStatus("generalStatus", "Publishing General Info…");
       try {
@@ -372,13 +611,15 @@
             summary,
             body,
             targetUrl:$("generalUrl").value,
-            payload:{ type:"general", category:$("generalCategory").value }
+            payload:{ type:"general", category:$("generalCategory").value, pinned:$("generalPinned").checked, expiresAt }
           })
         });
         const result = await response.json();
         if (!response.ok) throw new Error(result.error || "Publish failed");
         const push = result.push || {};
         setStatus("generalStatus", "Published. Push sent to " + (push.sent || 0) + " of " + (push.total || 0) + " subscribed device(s).", "success");
+        localStorage.removeItem(DRAFT_KEY);
+        if ($("historyToken").value.trim()) loadHistory();
       } catch (error) {
         setStatus("generalStatus", error.message === "Unauthorized" ? "Admin key is incorrect." : (error.message || "Could not publish."), "error");
       } finally {
@@ -404,7 +645,39 @@
     $("share").addEventListener("click", shareUpdate);
     $("generalPublish").addEventListener("click", publishGeneral);
     $("generalShare").addEventListener("click", shareGeneral);
+    $("saveCampaignDraft").addEventListener("click", () => saveDraft("campaign"));
+    $("clearCampaignDraft").addEventListener("click", () => clearDraft("campaign"));
+    $("saveGeneralDraft").addEventListener("click", () => saveDraft("general"));
+    $("clearGeneralDraft").addEventListener("click", () => clearDraft("general"));
+    $("loadHistory").addEventListener("click", loadHistory);
+    $("historyList").addEventListener("click", async event => {
+      const button = event.target.closest("[data-delete-id]");
+      if (!button) return;
+      const token = $("historyToken").value.trim();
+      if (!token) return setStatus("historyStatus", "Enter your private admin key.", "error");
+      if (!confirm("Remove this notification from the App? Push notifications already delivered cannot be recalled.")) return;
+      button.disabled = true;
+      try {
+        await adminRequest({ action:"deleteUpdate", adminToken:token, id:button.dataset.deleteId });
+        setStatus("historyStatus", "Notification removed from the App.", "success");
+        await loadHistory();
+      } catch (error) {
+        setStatus("historyStatus", error.message === "Unauthorized" ? "Admin key is incorrect." : (error.message || "Could not remove notification."), "error");
+        button.disabled = false;
+      }
+    });
+    ["token","generalToken","historyToken"].forEach(id => $(id).addEventListener("input", event => syncAdminTokens(event.target.value)));
+    [
+      "startDate","endDate","submissions","referrals","manualNotes","title","summary","body","targetUrl","campaignPinned","campaignExpiresAt",
+      "generalCategory","generalTitle","generalSummary","generalBody","generalUrl","generalPinned","generalExpiresAt"
+    ].forEach(id => {
+      $(id).addEventListener("input", scheduleDraftSave);
+      $(id).addEventListener("change", scheduleDraftSave);
+    });
     setDefaultWeek();
+    restoreDraft();
+    try { syncAdminTokens(sessionStorage.getItem("ngcAdminKey") || ""); } catch {}
+    updatePreviews();
   </script>
 </body>
 </html>
