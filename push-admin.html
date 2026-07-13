@@ -4,82 +4,301 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#071c36">
-  <title>NGC Push Admin</title>
+  <title>NGC Campaign Update</title>
   <style>
-    :root { font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif; color:#10223a; background:#e8f4ff; }
+    :root { font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif; color:#10223a; background:#e8f4ff; --blue:#1578ff; --navy:#071c36; --muted:#62748a; --line:rgba(17,54,93,.13); }
     * { box-sizing:border-box; }
-    body { min-height:100svh; margin:0; padding:max(28px,env(safe-area-inset-top)) 18px max(28px,env(safe-area-inset-bottom)); background:radial-gradient(circle at 88% 2%,rgba(68,214,209,.3),transparent 34%),radial-gradient(circle at 0 70%,rgba(21,120,255,.22),transparent 38%),linear-gradient(155deg,#f8fcff,#e8f4ff 55%,#f8fbfe); }
-    main { width:min(100%,520px); margin:auto; }
-    .glass { padding:22px; border:1px solid rgba(255,255,255,.9); border-radius:28px; background:rgba(255,255,255,.66); box-shadow:inset 0 1px 0 white,0 22px 50px -28px rgba(7,28,54,.35); backdrop-filter:blur(28px) saturate(170%); -webkit-backdrop-filter:blur(28px) saturate(170%); }
-    header { display:flex; align-items:center; gap:13px; margin-bottom:22px; }
+    body { min-height:100svh; margin:0; padding:max(24px,env(safe-area-inset-top)) 14px max(32px,env(safe-area-inset-bottom)); background:radial-gradient(circle at 88% 2%,rgba(68,214,209,.3),transparent 34%),radial-gradient(circle at 0 70%,rgba(21,120,255,.22),transparent 38%),linear-gradient(155deg,#f8fcff,#e8f4ff 55%,#f8fbfe); }
+    main { width:min(100%,720px); margin:auto; display:grid; gap:14px; }
+    .glass { padding:20px; border:1px solid rgba(255,255,255,.92); border-radius:26px; background:rgba(255,255,255,.72); box-shadow:inset 0 1px 0 white,0 22px 50px -28px rgba(7,28,54,.32); backdrop-filter:blur(28px) saturate(170%); -webkit-backdrop-filter:blur(28px) saturate(170%); }
+    header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .brand { display:flex; align-items:center; gap:13px; }
     header img { width:52px; height:52px; padding:7px; border-radius:17px; background:linear-gradient(145deg,#0b315c,#1578ff); box-shadow:0 12px 25px rgba(15,78,150,.24); }
-    h1 { font-size:22px; letter-spacing:-.03em; margin:0; }
-    header p { color:#62748a; font-size:12px; margin:3px 0 0; }
-    label { display:block; margin:15px 2px 7px; color:#62748a; font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
-    input,textarea { width:100%; padding:14px 15px; border:1px solid rgba(17,54,93,.13); border-radius:16px; background:rgba(255,255,255,.74); color:#10223a; font:inherit; font-size:16px; outline:0; box-shadow:inset 0 1px 0 white; }
-    textarea { min-height:112px; resize:vertical; }
-    input:focus,textarea:focus { border-color:rgba(21,120,255,.55); box-shadow:0 0 0 3px rgba(21,120,255,.11); }
-    button { width:100%; min-height:52px; margin-top:18px; border:0; border-radius:17px; color:white; background:linear-gradient(145deg,#0b5ed7,#1578ff); font:inherit; font-weight:800; box-shadow:0 14px 30px rgba(21,120,255,.27); cursor:pointer; }
+    h1 { font-size:22px; letter-spacing:-.035em; margin:0; }
+    header p,.hint { color:var(--muted); font-size:12px; margin:3px 0 0; line-height:1.45; }
+    .back { min-height:42px; padding:0 13px; display:inline-flex; align-items:center; border:1px solid var(--line); border-radius:14px; color:#0b5ed7; background:rgba(255,255,255,.68); text-decoration:none; font-size:13px; font-weight:750; }
+    h2 { margin:0 0 5px; font-size:17px; letter-spacing:-.02em; }
+    label { display:block; margin:14px 2px 7px; color:var(--muted); font-size:10px; font-weight:850; letter-spacing:.09em; text-transform:uppercase; }
+    input,textarea,select { width:100%; min-height:48px; padding:12px 13px; border:1px solid var(--line); border-radius:15px; background:rgba(255,255,255,.78); color:#10223a; font:inherit; font-size:16px; outline:0; box-shadow:inset 0 1px 0 white; }
+    textarea { min-height:130px; resize:vertical; line-height:1.5; }
+    input:focus,textarea:focus,select:focus { border-color:rgba(21,120,255,.55); box-shadow:0 0 0 3px rgba(21,120,255,.11); }
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:11px; }
+    .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-top:14px; }
+    .metric { padding:13px; border:1px solid rgba(255,255,255,.88); border-radius:17px; background:rgba(255,255,255,.56); }
+    .metric span { display:block; color:var(--muted); font-size:10px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
+    .metric strong { display:block; margin-top:5px; color:var(--navy); font-size:18px; letter-spacing:-.03em; }
+    button { min-height:50px; padding:0 16px; border:0; border-radius:16px; color:white; background:linear-gradient(145deg,#0b5ed7,#1578ff); font:inherit; font-weight:800; box-shadow:0 12px 26px rgba(21,120,255,.23); cursor:pointer; }
+    button.secondary { color:var(--navy); background:rgba(255,255,255,.76); border:1px solid var(--line); box-shadow:none; }
+    button.share { background:linear-gradient(145deg,#087853,#22b77f); }
     button:active { transform:scale(.98); }
-    button:disabled { opacity:.55; cursor:wait; }
-    .status { min-height:20px; margin:14px 2px 0; color:#62748a; font-size:13px; text-align:center; }
+    button:disabled { opacity:.5; cursor:wait; }
+    .load { width:100%; margin-top:13px; }
+    .actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px; }
+    .movement-list { display:grid; gap:9px; margin-top:12px; }
+    .movement { padding:12px; border:1px solid rgba(255,255,255,.9); border-radius:18px; background:rgba(255,255,255,.53); }
+    .movement-head { display:flex; justify-content:space-between; gap:10px; align-items:center; }
+    .movement-head strong { font-size:14px; }
+    .movement-head span { color:#087952; font-size:13px; font-weight:800; }
+    .movement-fields { display:grid; grid-template-columns:1.5fr .75fr .75fr; gap:8px; }
+    .movement input { min-height:42px; padding:9px 10px; font-size:14px; }
+    .status { min-height:20px; margin:13px 2px 0; color:var(--muted); font-size:13px; text-align:center; }
     .status.success { color:#087952; }
     .status.error { color:#c5324d; }
-    .back { display:inline-block; margin:18px 0 0; color:#0b5ed7; text-decoration:none; font-size:13px; font-weight:750; }
+    .preview { white-space:pre-wrap; word-break:break-word; min-height:160px; padding:16px; margin-top:12px; border:1px solid rgba(255,255,255,.94); border-radius:18px; background:rgba(255,255,255,.64); font-size:14px; line-height:1.55; }
+    .hidden { display:none !important; }
+    @media (max-width:560px) { .glass{padding:17px}.grid3{grid-template-columns:1fr}.actions{grid-template-columns:1fr}.movement-fields{grid-template-columns:1fr 1fr}.movement-fields input:first-child{grid-column:1/-1}header{align-items:flex-start}.back{font-size:0}.back::after{content:"← App";font-size:13px} }
     @media (prefers-reduced-transparency:reduce) { .glass { background:#fff; backdrop-filter:none; -webkit-backdrop-filter:none; } }
   </style>
 </head>
 <body>
   <main>
     <section class="glass">
-      <header><img src="ngc-logo.png" alt="NGC"><div><h1>Push Notification</h1><p>NGC Super App Admin</p></div></header>
-      <label for="title">Title</label><input id="title" value="NGC Super App" maxlength="80">
-      <label for="message">Message</label><textarea id="message" maxlength="220" placeholder="Type your notification message"></textarea>
-      <label for="url">Open Link</label><input id="url" type="url" value="https://ngc-super-app.vercel.app">
-      <label for="token">Admin Key</label><input id="token" type="password" autocomplete="current-password" placeholder="Paste your private admin key">
-      <button id="send" type="button">Send Notification</button>
-      <p id="status" class="status" role="status" aria-live="polite"></p>
-      <a class="back" href="./index.html">← Back to NGC Super App</a>
+      <header>
+        <div class="brand"><img src="ngc-logo.png" alt="NGC"><div><h1>Campaign Update</h1><p>Generate · Publish · Share</p></div></div>
+        <a class="back" href="./index.html">← Back to App</a>
+      </header>
+    </section>
+
+    <section class="glass">
+      <h2>1. Load weekly results</h2>
+      <p class="hint">Automatically reads sales, cases and Agent movement from the HERO 88 tracker. Default: last completed Monday–Sunday.</p>
+      <div class="grid2">
+        <div><label for="startDate">Start Date</label><input id="startDate" type="date"></div>
+        <div><label for="endDate">End Date</label><input id="endDate" type="date"></div>
+      </div>
+      <button id="load" class="load" type="button">Load Weekly Results</button>
+      <p id="loadStatus" class="status" role="status" aria-live="polite"></p>
+      <div id="metrics" class="grid3 hidden">
+        <div class="metric"><span>Previous Total</span><strong id="previousTotal">RM --</strong></div>
+        <div class="metric"><span>This Week</span><strong id="newAmount">+RM --</strong></div>
+        <div class="metric"><span>Current Total</span><strong id="currentTotal">RM --</strong></div>
+      </div>
+    </section>
+
+    <section id="editSection" class="glass hidden">
+      <h2>2. Confirm case types</h2>
+      <p class="hint">The tracker does not store Submission / Referral yet. Adjust the split below before generating.</p>
+      <div class="grid2">
+        <div><label for="submissions">Total Submissions</label><input id="submissions" type="number" min="0" step="1"></div>
+        <div><label for="referrals">Total Referrals</label><input id="referrals" type="number" min="0" step="1" value="0"></div>
+      </div>
+      <div id="movements" class="movement-list"></div>
+      <label for="manualNotes">Manual Team Notes (one line each)</label>
+      <textarea id="manualNotes" placeholder="Kalim 兄弟 — Exam passed. Waiting 🚀."></textarea>
+      <button id="generate" class="load" type="button">Generate Weekly Summary</button>
+    </section>
+
+    <section id="publishSection" class="glass hidden">
+      <h2>3. Preview & publish</h2>
+      <label for="title">Update Title</label><input id="title" maxlength="80">
+      <label for="summary">Push Preview</label><textarea id="summary" maxlength="220"></textarea>
+      <label for="body">Full Update</label><textarea id="body" style="min-height:360px"></textarea>
+      <label for="targetUrl">Latest Ranking Link</label><input id="targetUrl" type="url">
+      <label for="token">Private Admin Key</label><input id="token" type="password" autocomplete="current-password" placeholder="Paste your private admin key">
+      <div class="actions">
+        <button id="publish" type="button">Publish to App</button>
+        <button id="share" class="share" type="button">Share to WhatsApp</button>
+      </div>
+      <p id="publishStatus" class="status" role="status" aria-live="polite"></p>
     </section>
   </main>
+
   <script>
-    const api = "https://bzqgademvvtbpthqoxoj.supabase.co/functions/v1/push-api";
-    const send = document.getElementById("send");
-    const status = document.getElementById("status");
-    send.addEventListener("click", async () => {
-      const token = document.getElementById("token").value.trim();
-      const body = document.getElementById("message").value.trim();
-      status.className = "status";
-      if (!token || !body) {
-        status.textContent = "Enter the message and admin key.";
-        status.classList.add("error");
-        return;
-      }
-      send.disabled = true;
-      status.textContent = "Sending…";
+    const PUSH_API = "https://bzqgademvvtbpthqoxoj.supabase.co/functions/v1/push-api";
+    const SUMMARY_API = "https://ejhwbovqtcujjwvjniyt.supabase.co/functions/v1/campaign-summary";
+    const PUSH_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6cWdhZGVtdnZ0YnB0aHFveG9qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MTY5NTQsImV4cCI6MjA5OTQ5Mjk1NH0.dN9pXoMyVL0cflWtpXWO1ukgaVDS-fy8dpcBV_9BHuo";
+    const SUMMARY_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqaHdib3ZxdGN1amp3dmpuaXl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU1MDYyMjksImV4cCI6MjA4MTA4MjIyOX0.GBf7fuVOE9m3jCcPGSaMWrfWyaRG6Bo3p5kb8wE6ZFo";
+    const $ = id => document.getElementById(id);
+    let report = null;
+
+    function isoDate(date) { return date.toISOString().slice(0, 10); }
+    function setDefaultWeek() {
+      const now = new Date();
+      now.setHours(12, 0, 0, 0);
+      const mondayOffset = (now.getDay() + 6) % 7;
+      const monday = new Date(now);
+      monday.setDate(monday.getDate() - mondayOffset);
+      const start = new Date(monday);
+      start.setDate(start.getDate() - 7);
+      const end = new Date(monday);
+      end.setDate(end.getDate() - 1);
+      $("startDate").value = isoDate(start);
+      $("endDate").value = isoDate(end);
+    }
+    function money(value) {
+      return "RM" + Number(value || 0).toLocaleString("en-MY", { minimumFractionDigits:2, maximumFractionDigits:2 });
+    }
+    function setStatus(id, text, kind) {
+      const el = $(id);
+      el.textContent = text;
+      el.className = "status" + (kind ? " " + kind : "");
+    }
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, character => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" })[character]);
+    }
+    function movementRows() {
+      return Array.from(document.querySelectorAll(".movement")).map((row, index) => ({
+        displayName: row.querySelector(".agent-name").value.trim() || report.movements[index].displayName,
+        amount: report.movements[index].amount,
+        cases: report.movements[index].cases,
+        submissions: Math.max(0, Number(row.querySelector(".agent-submissions").value) || 0),
+        referrals: Math.max(0, Number(row.querySelector(".agent-referrals").value) || 0)
+      }));
+    }
+    function renderMovements() {
+      $("movements").textContent = "";
+      report.movements.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.className = "movement";
+        row.innerHTML = '<div class="movement-head"><strong>' + escapeHtml(item.displayName) + '</strong><span>+' + money(item.amount) + ' · ' + item.cases + ' case(s)</span></div>' +
+          '<div class="movement-fields">' +
+          '<div><label>Display Name</label><input class="agent-name" value="' + escapeHtml(item.displayName) + '"></div>' +
+          '<div><label>Submissions</label><input class="agent-submissions" type="number" min="0" value="' + item.cases + '"></div>' +
+          '<div><label>Referrals</label><input class="agent-referrals" type="number" min="0" value="0"></div>' +
+          '</div>';
+        row.dataset.index = String(index);
+        $("movements").appendChild(row);
+      });
+    }
+    async function loadResults() {
+      const start = $("startDate").value;
+      const end = $("endDate").value;
+      if (!start || !end || start > end) return setStatus("loadStatus", "Choose a valid date range.", "error");
+      $("load").disabled = true;
+      setStatus("loadStatus", "Reading tracker data…");
       try {
-        const response = await fetch(api, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "send",
-            adminToken: token,
-            title: document.getElementById("title").value,
-            body,
-            url: document.getElementById("url").value
+        const response = await fetch(SUMMARY_API + "?start=" + encodeURIComponent(start) + "&end=" + encodeURIComponent(end), {
+          cache:"no-store",
+          headers:{ "apikey":SUMMARY_KEY, "Authorization":"Bearer " + SUMMARY_KEY }
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Could not load results");
+        report = result;
+        $("previousTotal").textContent = money(report.previousTotal);
+        $("newAmount").textContent = "+" + money(report.newAmount);
+        $("currentTotal").textContent = money(report.currentTotal);
+        $("metrics").classList.remove("hidden");
+        $("editSection").classList.remove("hidden");
+        $("publishSection").classList.add("hidden");
+        $("submissions").value = String(report.newCases);
+        $("referrals").value = "0";
+        renderMovements();
+        setStatus("loadStatus", report.newCases + " new case(s) loaded.", "success");
+        $("editSection").scrollIntoView({ behavior:"smooth", block:"start" });
+      } catch (error) {
+        setStatus("loadStatus", error.message || "Could not load tracker data.", "error");
+      } finally {
+        $("load").disabled = false;
+      }
+    }
+    function typeText(submissions, referrals) {
+      const parts = [];
+      if (submissions) parts.push(submissions + " submission" + (submissions === 1 ? "" : "s"));
+      if (referrals) parts.push(referrals + " referral" + (referrals === 1 ? "" : "s"));
+      return parts.join(" + ") || "case update";
+    }
+    function generateSummary() {
+      if (!report) return;
+      const submissions = Math.max(0, Number($("submissions").value) || 0);
+      const referrals = Math.max(0, Number($("referrals").value) || 0);
+      const rows = movementRows();
+      const lines = [
+        "🔥 " + report.campaignTitle + " | Weekly Summary",
+        "",
+        "Team Sales 从 " + money(report.previousTotal) + " 增加到 " + money(report.currentTotal) + "🔥",
+        "",
+        "本周新增：",
+        "+" + money(report.newAmount) + " ⬆️",
+        "+" + report.newCases + " new cases recorded",
+        "（" + typeText(submissions, referrals) + "）",
+        "",
+        "本周 movement：",
+        ""
+      ];
+      rows.forEach(item => {
+        lines.push("✅ @" + item.displayName);
+        lines.push("+" + money(item.amount));
+        lines.push("+" + typeText(item.submissions, item.referrals));
+        lines.push("");
+      });
+      const notes = $("manualNotes").value.split("\n").map(line => line.trim()).filter(Boolean);
+      notes.forEach(note => { lines.push(note); lines.push(""); });
+      lines.push("目前已经累积：");
+      lines.push(money(report.currentTotal) + " 🔥");
+      lines.push(report.totalCases + " cases recorded");
+      lines.push("");
+      lines.push("过程中有什么问题，可以直接在 group 问，");
+      lines.push("或者找我也可以。");
+      lines.push("");
+      lines.push("继续 Go Go Go🔥");
+      lines.push("");
+      lines.push("最新排名👇");
+      lines.push(report.targetUrl);
+
+      $("title").value = report.campaignTitle + " | Weekly Summary";
+      $("summary").value = "+" + money(report.newAmount) + " · " + report.newCases + " new cases · Total " + money(report.currentTotal) + " 🔥";
+      $("body").value = lines.join("\n");
+      $("targetUrl").value = report.targetUrl;
+      $("publishSection").classList.remove("hidden");
+      setStatus("publishStatus", "Review the wording, then publish or share.");
+      $("publishSection").scrollIntoView({ behavior:"smooth", block:"start" });
+    }
+    async function publishUpdate() {
+      const token = $("token").value.trim();
+      if (!token) return setStatus("publishStatus", "Enter your private admin key.", "error");
+      if (!$("title").value.trim() || !$("summary").value.trim() || !$("body").value.trim()) return setStatus("publishStatus", "Title and update text are required.", "error");
+      $("publish").disabled = true;
+      setStatus("publishStatus", "Publishing to Notification Centre…");
+      try {
+        const response = await fetch(PUSH_API, {
+          method:"POST",
+          headers:{ "Content-Type":"application/json", "apikey":PUSH_KEY, "Authorization":"Bearer " + PUSH_KEY },
+          body:JSON.stringify({
+            action:"publish",
+            adminToken:token,
+            campaignKey:report.campaignKey,
+            campaignTitle:report.campaignTitle,
+            title:$("title").value,
+            summary:$("summary").value,
+            body:$("body").value,
+            targetUrl:$("targetUrl").value,
+            payload:{
+              startDate:report.startDate,
+              endDate:report.endDate,
+              previousTotal:report.previousTotal,
+              currentTotal:report.currentTotal,
+              newAmount:report.newAmount,
+              newCases:report.newCases,
+              totalCases:report.totalCases,
+              movements:movementRows()
+            }
           })
         });
         const result = await response.json();
-        if (!response.ok) throw new Error(result.error || "Send failed");
-        status.textContent = result.total ? `Sent to ${result.sent} of ${result.total} device(s).` : "No subscribed devices yet.";
-        status.classList.add("success");
+        if (!response.ok) throw new Error(result.error || "Publish failed");
+        const push = result.push || {};
+        setStatus("publishStatus", "Published. Push sent to " + (push.sent || 0) + " of " + (push.total || 0) + " subscribed device(s).", "success");
       } catch (error) {
-        status.textContent = error.message === "Unauthorized" ? "Admin key is incorrect." : "Could not send. Please try again.";
-        status.classList.add("error");
+        setStatus("publishStatus", error.message === "Unauthorized" ? "Admin key is incorrect." : (error.message || "Could not publish."), "error");
       } finally {
-        send.disabled = false;
+        $("publish").disabled = false;
       }
-    });
+    }
+    async function shareUpdate() {
+      const text = $("body").value.trim();
+      if (!text) return;
+      if (navigator.share) {
+        try { await navigator.share({ title:$("title").value, text }); return; }
+        catch (error) { if (error && error.name === "AbortError") return; }
+      }
+      window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener");
+    }
+
+    $("load").addEventListener("click", loadResults);
+    $("generate").addEventListener("click", generateSummary);
+    $("publish").addEventListener("click", publishUpdate);
+    $("share").addEventListener("click", shareUpdate);
+    setDefaultWeek();
   </script>
 </body>
 </html>

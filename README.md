@@ -15,7 +15,10 @@ https://ngc-super-app.vercel.app
 - Add to Home Screen support
 - Offline calculator access through a service worker
 - iPhone Web Push notification opt-in
-- Protected Push Notification admin page
+- In-app Notification Centre with unread status
+- Automatic HERO 88 weekly-summary generation
+- Protected Campaign Update publisher
+- One-tap WhatsApp sharing
 
 ## Install on iPhone
 
@@ -23,13 +26,15 @@ https://ngc-super-app.vercel.app
 2. Tap the Share button.
 3. Choose **Add to Home Screen**.
 4. Tap **Add**.
-5. Open NGC from the Home Screen and tap the bell to enable notifications.
+5. Open NGC from the Home Screen, tap the bell, then choose **Turn On**.
 
 Web Push on iPhone requires iOS 16.4 or later and the installed Home Screen app. Notification permission is requested only after the user taps the bell.
 
-## Push Notification Admin
+## Campaign Update Admin
 
-The sender is available at `https://ngc-super-app.vercel.app/push-admin.html` and requires the private admin key. The VAPID private key and subscription records are stored only in the protected Supabase backend; they are not included in this public repository.
+The publisher is available at `https://ngc-super-app.vercel.app/push-admin.html` and requires the private admin key. It loads the previous completed week from the HERO 88 tracker, lets the admin confirm submission/referral counts, generates the full weekly summary, publishes it to the in-app Notification Centre, sends a short push alert, and opens the iOS share sheet for WhatsApp.
+
+The VAPID private key, admin key, database credentials, and subscription records are stored only in the protected Supabase backend; they are not included in this public repository.
 
 ## Campaign Configuration
 

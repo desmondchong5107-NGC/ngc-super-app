@@ -1,4 +1,4 @@
-const CACHE_NAME = "ngc-super-app-v2";
+const CACHE_NAME = "ngc-super-app-v3";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -73,6 +73,7 @@ self.addEventListener("push", event => {
     icon: "./icon-192.png",
     badge: "./icon-192.png",
     tag: payload.tag || "ngc-update",
+    renotify: true,
     data: { url: payload.url || "./index.html" }
   };
   event.waitUntil(self.registration.showNotification(title, options));

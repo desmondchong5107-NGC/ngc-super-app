@@ -101,14 +101,70 @@
     }
     .notify-button svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
     .notify-button::after {
-      content:""; position:absolute; right:7px; top:7px; width:8px; height:8px; border-radius:50%;
-      background:#ff9f0a; border:1.5px solid white; box-shadow:0 2px 6px rgba(182,104,0,.28);
+      content:""; display:none; position:absolute; right:7px; top:7px; width:8px; height:8px; border-radius:50%;
+      background:#ff3b30; border:1.5px solid white; box-shadow:0 2px 6px rgba(182,35,29,.28);
     }
-    .notify-button.active { color:white; background:linear-gradient(145deg,#0a8f63,#22c58b); }
-    .notify-button.active::after { background:#34c759; }
+    .notify-button.has-unread::after { display:block; }
+    .notification-count {
+      position:absolute; right:-6px; top:-7px; min-width:20px; height:20px; padding:0 5px; display:grid; place-items:center;
+      border-radius:999px; color:white; background:#ff3b30; border:1.5px solid white; font-size:10px; font-weight:850;
+      box-shadow:0 6px 12px rgba(182,35,29,.24);
+    }
+    .notification-count[hidden] { display:none; }
+    .notify-button.active { color:#087952; }
     .notify-button:active { transform:scale(.93); }
     .notify-button:disabled { opacity:.55; cursor:wait; }
     .notify-button:focus-visible { outline:4px solid rgba(21,120,255,.22); outline-offset:2px; }
+    .sheet-backdrop {
+      position:fixed; z-index:200; inset:0; display:flex; align-items:flex-end; justify-content:center;
+      padding:max(12px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom));
+      background:rgba(4,20,39,.22); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+      animation:fadeIn .2s ease;
+    }
+    .sheet-backdrop[hidden] { display:none; }
+    @keyframes fadeIn { from { opacity:0; } }
+    .notification-sheet {
+      width:min(100%,620px); max-height:min(88svh,760px); overflow:hidden; display:grid; grid-template-rows:auto auto minmax(0,1fr) auto;
+      border:1px solid rgba(255,255,255,.95); border-radius:30px;
+      background:linear-gradient(160deg,rgba(255,255,255,.92),rgba(242,249,255,.82));
+      box-shadow:inset 0 1px 0 white,0 28px 80px rgba(7,28,54,.28);
+      backdrop-filter:blur(38px) saturate(180%); -webkit-backdrop-filter:blur(38px) saturate(180%);
+      animation:sheetUp .38s cubic-bezier(.16,1,.3,1);
+    }
+    @keyframes sheetUp { from { transform:translateY(34px) scale(.98); opacity:.5; } }
+    .sheet-handle { width:38px; height:5px; margin:9px auto 0; border-radius:999px; background:rgba(7,28,54,.16); }
+    .sheet-header { padding:10px 18px 13px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .sheet-header h2 { margin:0; color:var(--navy); font-size:21px; letter-spacing:-.035em; }
+    .sheet-header p { margin:3px 0 0; color:var(--muted); font-size:12px; }
+    .sheet-close,.mark-read {
+      min-height:40px; padding:0 13px; border:1px solid var(--line); border-radius:14px; cursor:pointer;
+      color:var(--blue); background:rgba(255,255,255,.62); font-size:13px; font-weight:750;
+    }
+    .sheet-close { width:40px; padding:0; color:var(--navy); font-size:19px; }
+    .sheet-tools { padding:0 18px 10px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .sheet-tools span { color:var(--muted); font-size:12px; font-weight:650; }
+    .notification-list { min-height:150px; overflow:auto; padding:0 12px 12px; display:grid; align-content:start; gap:9px; overscroll-behavior:contain; }
+    .notification-empty { padding:42px 22px; color:var(--muted); text-align:center; font-size:14px; line-height:1.5; }
+    .update-card {
+      width:100%; padding:14px; display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:11px; align-items:start;
+      border:1px solid rgba(255,255,255,.96); border-radius:19px; text-align:left; cursor:pointer;
+      color:var(--ink); background:rgba(255,255,255,.68); box-shadow:inset 0 1px 0 white,0 10px 24px -20px rgba(7,28,54,.3);
+    }
+    .update-card.unread { background:rgba(226,242,255,.88); }
+    .update-dot { width:9px; height:9px; margin-top:5px; border-radius:50%; background:transparent; }
+    .update-card.unread .update-dot { background:var(--blue); box-shadow:0 0 0 4px rgba(21,120,255,.1); }
+    .update-copy { min-width:0; }
+    .update-copy strong { display:block; color:var(--navy); font-size:14px; line-height:1.3; }
+    .update-copy span { display:block; margin-top:4px; color:var(--muted); font-size:12px; line-height:1.45; }
+    .update-time { color:#8190a2; font-size:10px; white-space:nowrap; }
+    .update-detail { grid-column:2/-1; padding-top:8px; border-top:1px solid var(--line); white-space:pre-wrap; color:#334a64; font-size:13px; line-height:1.55; }
+    .update-detail[hidden] { display:none; }
+    .update-link { grid-column:2/-1; color:var(--blue); font-size:12px; font-weight:750; text-decoration:none; }
+    .notification-settings { padding:12px 18px max(16px,env(safe-area-inset-bottom)); border-top:1px solid rgba(17,54,93,.09); display:flex; align-items:center; justify-content:space-between; gap:14px; background:rgba(255,255,255,.42); }
+    .notification-settings strong { display:block; color:var(--navy); font-size:13px; }
+    .notification-settings span { display:block; margin-top:2px; color:var(--muted); font-size:11px; }
+    .push-toggle { min-height:40px; padding:0 14px; border:0; border-radius:14px; cursor:pointer; color:white; background:linear-gradient(145deg,#0b5ed7,#1578ff); font-size:12px; font-weight:800; }
+    .push-toggle.active { background:linear-gradient(145deg,#087853,#22b77f); }
     .app-grid {
       width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 32px; max-width: 500px; margin: 0 auto; align-self: center;
@@ -195,9 +251,10 @@
       .app-card h2,.tool-title strong,.back { color:#00152d; }
     }
     @media (prefers-reduced-transparency:reduce) {
-      .brandbar,.toolbar,.back,.notify-button { background:#fff; backdrop-filter:none; -webkit-backdrop-filter:none; }
+      .brandbar,.toolbar,.back,.notify-button,.notification-sheet { background:#fff; backdrop-filter:none; -webkit-backdrop-filter:none; }
+      .sheet-backdrop { backdrop-filter:none; -webkit-backdrop-filter:none; }
     }
-    @media (prefers-reduced-motion:reduce) { .app-card,.back { transition:none; } .home::before,.home::after,.home:not([hidden]),.tool.active { animation:none; } }
+    @media (prefers-reduced-motion:reduce) { .app-card,.back { transition:none; } .home::before,.home::after,.home:not([hidden]),.tool.active,.sheet-backdrop,.notification-sheet { animation:none; } }
   </style>
 </head>
 <body>
@@ -209,8 +266,9 @@
           <div class="brand-copy"><strong>NGC Super App</strong><span>Everyday tools, all in one place</span></div>
         </div>
         <div class="brand-actions">
-          <button id="notificationButton" class="notify-button" type="button" aria-label="Turn on notifications" aria-pressed="false" title="Notifications">
+          <button id="notificationButton" class="notify-button" type="button" aria-label="Open Notification Centre" title="Notification Centre">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path></svg>
+            <span id="notificationCount" class="notification-count" hidden></span>
           </button>
           <div class="version">Calculator Hub</div>
         </div>
@@ -248,6 +306,24 @@
     </div>
   </section>
 
+  <div id="notificationBackdrop" class="sheet-backdrop" hidden>
+    <section class="notification-sheet" role="dialog" aria-modal="true" aria-labelledby="notificationTitle">
+      <div>
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <header class="sheet-header">
+          <div><h2 id="notificationTitle">Notification Centre</h2><p>Campaign updates in one place</p></div>
+          <button id="notificationClose" class="sheet-close" type="button" aria-label="Close Notification Centre">×</button>
+        </header>
+      </div>
+      <div class="sheet-tools"><span id="notificationMeta">Checking for updates…</span><button id="markAllRead" class="mark-read" type="button">Mark all read</button></div>
+      <div id="notificationList" class="notification-list" aria-live="polite"></div>
+      <div class="notification-settings">
+        <div><strong>Push Notifications</strong><span id="pushStatus">Get alerts when an update is published</span></div>
+        <button id="pushToggle" class="push-toggle" type="button">Turn On</button>
+      </div>
+    </section>
+  </div>
+
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script>
@@ -266,8 +342,16 @@
     const campaignLabel = document.getElementById("campaignLabel");
     const campaignBadge = document.getElementById("campaignBadge");
     const notificationButton = document.getElementById("notificationButton");
+    const notificationCount = document.getElementById("notificationCount");
+    const notificationBackdrop = document.getElementById("notificationBackdrop");
+    const notificationList = document.getElementById("notificationList");
+    const notificationMeta = document.getElementById("notificationMeta");
+    const markAllRead = document.getElementById("markAllRead");
+    const pushToggle = document.getElementById("pushToggle");
+    const pushStatus = document.getElementById("pushStatus");
     const toast = document.getElementById("toast");
     const PUSH_API_URL = "https://bzqgademvvtbpthqoxoj.supabase.co/functions/v1/push-api";
+    const PUSH_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6cWdhZGVtdnZ0YnB0aHFveG9qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MTY5NTQsImV4cCI6MjA5OTQ5Mjk1NH0.dN9pXoMyVL0cflWtpXWO1ukgaVDS-fy8dpcBV_9BHuo";
     const defaultCampaign = {
       enabled: true,
       title: "Campaign",
@@ -278,6 +362,9 @@
     };
     let toastTimer;
     let notificationBusy = false;
+    let campaignUpdates = [];
+    let readUpdateIds = new Set();
+    try { readUpdateIds = new Set(JSON.parse(localStorage.getItem("ngcReadUpdates") || "[]")); } catch {}
 
     function showToast(message) {
       clearTimeout(toastTimer);
@@ -314,6 +401,129 @@
       }
     }
 
+    function saveReadUpdates() {
+      localStorage.setItem("ngcReadUpdates", JSON.stringify(Array.from(readUpdateIds).slice(-100)));
+    }
+
+    function friendlyUpdateTime(value) {
+      const date = new Date(value);
+      if (!Number.isFinite(date.getTime())) return "";
+      const today = new Date();
+      if (date.toDateString() === today.toDateString()) {
+        return date.toLocaleTimeString("en-MY", { hour:"numeric", minute:"2-digit" });
+      }
+      return date.toLocaleDateString("en-MY", { day:"numeric", month:"short" });
+    }
+
+    function refreshUnreadUI() {
+      const unread = campaignUpdates.filter(update => !readUpdateIds.has(update.id)).length;
+      notificationButton.classList.toggle("has-unread", unread > 0);
+      notificationCount.textContent = unread > 9 ? "9+" : String(unread);
+      notificationCount.hidden = unread === 0;
+      notificationMeta.textContent = campaignUpdates.length
+        ? (unread ? unread + " unread update" + (unread === 1 ? "" : "s") : "You're all caught up")
+        : "No campaign updates yet";
+      markAllRead.hidden = unread === 0;
+    }
+
+    function renderUpdates() {
+      notificationList.textContent = "";
+      if (!campaignUpdates.length) {
+        const empty = document.createElement("div");
+        empty.className = "notification-empty";
+        empty.textContent = "New campaign updates will appear here after they are published.";
+        notificationList.appendChild(empty);
+        refreshUnreadUI();
+        return;
+      }
+
+      campaignUpdates.forEach(update => {
+        const card = document.createElement("div");
+        card.className = "update-card";
+        card.tabIndex = 0;
+        card.setAttribute("role", "button");
+        card.classList.toggle("unread", !readUpdateIds.has(update.id));
+        const dot = document.createElement("span");
+        dot.className = "update-dot";
+        dot.setAttribute("aria-hidden", "true");
+        const copy = document.createElement("span");
+        copy.className = "update-copy";
+        const title = document.createElement("strong");
+        title.textContent = update.title || update.campaign_title || "Campaign Update";
+        const summary = document.createElement("span");
+        summary.textContent = update.summary || "";
+        copy.append(title, summary);
+        const time = document.createElement("span");
+        time.className = "update-time";
+        time.textContent = friendlyUpdateTime(update.published_at);
+        const detail = document.createElement("span");
+        detail.className = "update-detail";
+        detail.textContent = update.body || "";
+        detail.hidden = true;
+        card.append(dot, copy, time, detail);
+        if (update.target_url) {
+          const link = document.createElement("a");
+          link.className = "update-link";
+          link.href = update.target_url;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = "View latest ranking ↗";
+          link.addEventListener("click", event => event.stopPropagation());
+          card.appendChild(link);
+        }
+        card.addEventListener("click", () => {
+          detail.hidden = !detail.hidden;
+          readUpdateIds.add(update.id);
+          saveReadUpdates();
+          card.classList.remove("unread");
+          refreshUnreadUI();
+        });
+        card.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            card.click();
+          }
+        });
+        notificationList.appendChild(card);
+      });
+      refreshUnreadUI();
+    }
+
+    async function loadCampaignUpdates() {
+      if (!/^https?:$/.test(location.protocol)) {
+        renderUpdates();
+        return;
+      }
+      try {
+        const response = await fetch(PUSH_API_URL + "?action=list&limit=30", {
+          cache:"no-store",
+          headers:{ "apikey":PUSH_API_KEY, "Authorization":"Bearer " + PUSH_API_KEY }
+        });
+        if (!response.ok) throw new Error("Updates unavailable");
+        const result = await response.json();
+        campaignUpdates = Array.isArray(result.updates) ? result.updates : [];
+      } catch {
+        if (!campaignUpdates.length) notificationMeta.textContent = "Updates are temporarily unavailable";
+      }
+      renderUpdates();
+    }
+
+    function openNotificationCentre(updateHash = true) {
+      if (tool.classList.contains("active")) showHome(false);
+      notificationBackdrop.hidden = false;
+      document.body.style.overflow = "hidden";
+      if (updateHash && location.hash !== "#notifications") history.pushState({ notifications:true }, "", "#notifications");
+      loadCampaignUpdates();
+      setTimeout(() => document.getElementById("notificationClose").focus({ preventScroll:true }), 30);
+    }
+
+    function closeNotificationCentre(updateHash = true) {
+      notificationBackdrop.hidden = true;
+      document.body.style.overflow = "";
+      if (updateHash && location.hash === "#notifications") history.replaceState({}, "", location.pathname + location.search);
+      notificationButton.focus({ preventScroll:true });
+    }
+
     function decode(value) {
       const bytes = Uint8Array.from(atob(value), character => character.charCodeAt(0));
       return new TextDecoder().decode(bytes);
@@ -335,9 +545,11 @@
 
     function setNotificationUI(active) {
       notificationButton.classList.toggle("active", active);
-      notificationButton.setAttribute("aria-pressed", String(active));
-      notificationButton.setAttribute("aria-label", active ? "Turn off notifications" : "Turn on notifications");
-      notificationButton.title = active ? "Notifications On" : "Notifications";
+      notificationButton.setAttribute("aria-label", "Open Notification Centre" + (active ? ", push notifications on" : ""));
+      notificationButton.title = "Notification Centre";
+      pushToggle.classList.toggle("active", active);
+      pushToggle.textContent = active ? "On" : "Turn On";
+      pushStatus.textContent = active ? "Alerts are enabled on this device" : "Get alerts when an update is published";
     }
 
     async function getPushRegistration() {
@@ -359,7 +571,7 @@
     async function callPushApi(payload) {
       const response = await fetch(PUSH_API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type":"application/json", "apikey":PUSH_API_KEY, "Authorization":"Bearer " + PUSH_API_KEY },
         body: JSON.stringify(payload)
       });
       if (!response.ok) throw new Error("Push service request failed");
@@ -378,7 +590,7 @@
       }
 
       notificationBusy = true;
-      notificationButton.disabled = true;
+      pushToggle.disabled = true;
       try {
         const registration = await getPushRegistration();
         const current = await registration.pushManager.getSubscription();
@@ -396,7 +608,10 @@
           return;
         }
 
-        const configResponse = await fetch(PUSH_API_URL, { cache: "no-store" });
+        const configResponse = await fetch(PUSH_API_URL, {
+          cache:"no-store",
+          headers:{ "apikey":PUSH_API_KEY, "Authorization":"Bearer " + PUSH_API_KEY }
+        });
         if (!configResponse.ok) throw new Error("Push configuration unavailable");
         const config = await configResponse.json();
         const subscription = await registration.pushManager.subscribe({
@@ -416,7 +631,7 @@
         showToast("Could not update notifications. Please try again.");
       } finally {
         notificationBusy = false;
-        notificationButton.disabled = false;
+        pushToggle.disabled = false;
       }
     }
 
@@ -449,7 +664,20 @@
     document.querySelectorAll("[data-open]").forEach(button => {
       button.addEventListener("click", () => openApp(button.dataset.open));
     });
-    notificationButton.addEventListener("click", toggleNotifications);
+    notificationButton.addEventListener("click", () => openNotificationCentre());
+    pushToggle.addEventListener("click", toggleNotifications);
+    document.getElementById("notificationClose").addEventListener("click", () => closeNotificationCentre());
+    notificationBackdrop.addEventListener("click", event => {
+      if (event.target === notificationBackdrop) closeNotificationCentre();
+    });
+    markAllRead.addEventListener("click", () => {
+      campaignUpdates.forEach(update => readUpdateIds.add(update.id));
+      saveReadUpdates();
+      renderUpdates();
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && !notificationBackdrop.hidden) closeNotificationCentre();
+    });
     campaignCard.addEventListener("click", event => {
       if (!navigator.onLine) {
         event.preventDefault();
@@ -460,11 +688,20 @@
     document.getElementById("back").addEventListener("click", () => showHome());
     window.addEventListener("popstate", () => {
       const id = location.hash.slice(1);
-      if (apps[id]) openApp(id, false); else showHome(false);
+      if (id === "notifications") {
+        showHome(false);
+        openNotificationCentre(false);
+      } else {
+        notificationBackdrop.hidden = true;
+        document.body.style.overflow = "";
+        if (apps[id]) openApp(id, false); else showHome(false);
+      }
     });
     const initial = location.hash.slice(1);
     if (apps[initial]) openApp(initial, false);
+    if (initial === "notifications") openNotificationCentre(false);
     loadCampaignConfig();
+    loadCampaignUpdates();
     if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("service-worker.js").then(refreshNotificationUI).catch(() => {});
