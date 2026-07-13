@@ -546,15 +546,21 @@
       });
     }
 
+    function syncSystemBadge(unread, registration = null) {
+      try {
+        if (unread > 0 && "setAppBadge" in navigator) navigator.setAppBadge(unread).catch(() => {});
+        if (unread === 0 && "clearAppBadge" in navigator) navigator.clearAppBadge().catch(() => {});
+      } catch {}
+      const worker = registration?.active || navigator.serviceWorker?.controller;
+      if (worker) worker.postMessage({ type:"ngc-set-badge", count:unread });
+    }
+
     function refreshUnreadUI() {
       const unread = campaignUpdates.filter(update => !readUpdateIds.has(update.id)).length;
       notificationButton.classList.toggle("has-unread", unread > 0);
       notificationCount.textContent = unread > 9 ? "9+" : String(unread);
       notificationCount.hidden = unread === 0;
-      try {
-        if (unread > 0 && "setAppBadge" in navigator) navigator.setAppBadge(unread).catch(() => {});
-        if (unread === 0 && "clearAppBadge" in navigator) navigator.clearAppBadge().catch(() => {});
-      } catch {}
+      syncSystemBadge(unread);
       notificationMeta.textContent = campaignUpdates.length
         ? (unread ? unread + " unread update" + (unread === 1 ? "" : "s") : "You're all caught up")
         : "No updates yet";
@@ -997,7 +1003,11 @@
         if (event.data?.type === "ngc-update") loadCampaignUpdates(true);
       });
       window.addEventListener("load", () => {
-        navigator.serviceWorker.register("service-worker.js").then(refreshNotificationUI).catch(() => {});
+        navigator.serviceWorker.register("service-worker.js").then(async registration => {
+          await refreshNotificationUI();
+          const unread = campaignUpdates.filter(update => !readUpdateIds.has(update.id)).length;
+          syncSystemBadge(unread, registration);
+        }).catch(() => {});
       });
     }
   </script>

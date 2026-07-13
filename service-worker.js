@@ -1,4 +1,6 @@
-const CACHE_NAME = "ngc-super-app-v6";
+const CACHE_NAME = "ngc-super-app-v7";
+const BADGE_DB_NAME = "ngc-super-app-state";
+const BADGE_STORE_NAME = "keyval";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -12,6 +14,73 @@ const APP_SHELL = [
   "./epf-logo.png"
 ];
 
+function openBadgeDatabase() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(BADGE_DB_NAME, 1);
+    request.onupgradeneeded = () => {
+      if (!request.result.objectStoreNames.contains(BADGE_STORE_NAME)) {
+        request.result.createObjectStore(BADGE_STORE_NAME);
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function readBadgeState(db) {
+  return new Promise((resolve, reject) => {
+    const request = db.transaction(BADGE_STORE_NAME, "readonly").objectStore(BADGE_STORE_NAME).get("badge");
+    request.onsuccess = () => resolve(request.result || { count:0, seen:[] });
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function writeBadgeState(db, state) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(BADGE_STORE_NAME, "readwrite");
+    transaction.objectStore(BADGE_STORE_NAME).put(state, "badge");
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+  });
+}
+
+async function applySystemBadge(count) {
+  const safeCount = Math.max(0, Math.floor(Number(count) || 0));
+  try {
+    if (safeCount > 0 && "setAppBadge" in self.navigator) await self.navigator.setAppBadge(safeCount);
+    if (safeCount === 0 && "clearAppBadge" in self.navigator) await self.navigator.clearAppBadge();
+  } catch {}
+  return safeCount;
+}
+
+async function setStoredBadgeCount(count) {
+  const safeCount = Math.max(0, Math.floor(Number(count) || 0));
+  try {
+    const db = await openBadgeDatabase();
+    const state = await readBadgeState(db);
+    await writeBadgeState(db, { count:safeCount, seen:Array.isArray(state.seen) ? state.seen.slice(-100) : [] });
+    db.close();
+  } catch {}
+  return applySystemBadge(safeCount);
+}
+
+async function incrementBackgroundBadge(tag) {
+  let count = 1;
+  try {
+    const db = await openBadgeDatabase();
+    const state = await readBadgeState(db);
+    const seen = Array.isArray(state.seen) ? state.seen : [];
+    count = Math.max(0, Math.floor(Number(state.count) || 0));
+    if (!tag || !seen.includes(tag)) {
+      count += 1;
+      if (tag) seen.push(tag);
+      await writeBadgeState(db, { count, seen:seen.slice(-100) });
+    }
+    db.close();
+  } catch {}
+  return applySystemBadge(count);
+}
+
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
 });
@@ -22,6 +91,11 @@ self.addEventListener("activate", event => {
       .then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))))
       .then(() => self.clients.claim())
   );
+});
+
+self.addEventListener("message", event => {
+  if (event.data?.type !== "ngc-set-badge") return;
+  event.waitUntil(setStoredBadgeCount(event.data.count));
 });
 
 self.addEventListener("fetch", event => {
@@ -78,6 +152,7 @@ self.addEventListener("push", event => {
   };
   event.waitUntil(Promise.all([
     self.registration.showNotification(title, options),
+    incrementBackgroundBadge(payload.tag),
     clients.matchAll({ type: "window", includeUncontrolled: true }).then(windows => {
       windows.forEach(client => client.postMessage({ type: "ngc-update" }));
     })
