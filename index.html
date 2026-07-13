@@ -431,6 +431,7 @@
     let remoteBadgeTimer;
     let notificationBusy = false;
     let updatesLoading = false;
+    let badgeSyncReady = false;
     let lastSuccessfulUpdateFetch = 0;
     let campaignUpdates = [];
     function storageGet(key, fallback = "") {
@@ -548,6 +549,9 @@
     }
 
     function syncSystemBadge(unread, registration = null) {
+      // Do not erase a push-delivered badge while the notification list is
+      // still empty or stale during launch/background resume.
+      if (unread === 0 && !badgeSyncReady) return;
       try {
         if (unread > 0 && "setAppBadge" in navigator) navigator.setAppBadge(unread).catch(() => {});
         if (unread === 0 && "clearAppBadge" in navigator) navigator.clearAppBadge().catch(() => {});
@@ -672,6 +676,7 @@
 
     function openUpdateDetail(update) {
       selectedUpdate = update;
+      badgeSyncReady = true;
       readUpdateIds.add(update.id);
       saveReadUpdates();
       const general = isGeneralUpdate(update);
@@ -717,6 +722,7 @@
 
     function toggleSelectedReadState() {
       if (!selectedUpdate) return;
+      badgeSyncReady = true;
       if (readUpdateIds.has(selectedUpdate.id)) {
         readUpdateIds.delete(selectedUpdate.id);
         detailUnread.textContent = "Mark Read";
@@ -768,6 +774,7 @@
         if (!response.ok) throw new Error("Updates unavailable");
         const result = await response.json();
         campaignUpdates = Array.isArray(result.updates) ? result.updates : [];
+        badgeSyncReady = true;
         lastSuccessfulUpdateFetch = Date.now();
         saveCachedUpdates();
       } catch {
@@ -970,6 +977,7 @@
       if (event.target === notificationBackdrop) closeNotificationCentre();
     });
     markAllRead.addEventListener("click", () => {
+      badgeSyncReady = true;
       campaignUpdates.forEach(update => readUpdateIds.add(update.id));
       saveReadUpdates();
       renderUpdates();

@@ -1,4 +1,4 @@
-const CACHE_NAME = "ngc-super-app-v8";
+const CACHE_NAME = "ngc-super-app-v9";
 const BADGE_DB_NAME = "ngc-super-app-state";
 const BADGE_STORE_NAME = "keyval";
 const APP_SHELL = [
@@ -153,7 +153,7 @@ self.addEventListener("push", event => {
     renotify: true,
     data: { url: proposed.navigate || payload.url || "./index.html" }
   };
-  const suppliedBadge = Number(proposed.app_badge ?? payload.badge);
+  const suppliedBadge = Number(payload.app_badge ?? proposed.app_badge ?? payload.badge);
   event.waitUntil(Promise.all([
     self.registration.showNotification(title, options),
     updateBackgroundBadge(options.tag, suppliedBadge),
