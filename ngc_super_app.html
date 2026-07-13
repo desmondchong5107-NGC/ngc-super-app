@@ -431,11 +431,21 @@
     let notificationBusy = false;
     let updatesLoading = false;
     let campaignUpdates = [];
-    let notificationFilter = localStorage.getItem("ngcNotificationFilter") || "all";
+    function storageGet(key, fallback = "") {
+      try { return localStorage.getItem(key) ?? fallback; }
+      catch { return fallback; }
+    }
+
+    function storageSet(key, value) {
+      try { localStorage.setItem(key, value); }
+      catch {}
+    }
+
+    let notificationFilter = storageGet("ngcNotificationFilter", "all");
     if (!["all","unread","campaign","general"].includes(notificationFilter)) notificationFilter = "all";
     let selectedUpdate = null;
     let readUpdateIds = new Set();
-    try { readUpdateIds = new Set(JSON.parse(localStorage.getItem("ngcReadUpdates") || "[]")); } catch {}
+    try { readUpdateIds = new Set(JSON.parse(storageGet("ngcReadUpdates", "[]"))); } catch {}
 
     function showToast(message) {
       clearTimeout(toastTimer);
@@ -473,7 +483,7 @@
     }
 
     function saveReadUpdates() {
-      localStorage.setItem("ngcReadUpdates", JSON.stringify(Array.from(readUpdateIds).slice(-100)));
+      storageSet("ngcReadUpdates", JSON.stringify(Array.from(readUpdateIds).slice(-100)));
     }
 
     function friendlyUpdateTime(value) {
@@ -686,9 +696,7 @@
     async function shareSelectedUpdate() {
       if (!selectedUpdate) return;
       const link = usableTargetUrl(selectedUpdate);
-      const text = [selectedUpdate.body || selectedUpdate.summary || "", link].filter(Boolean).join("
-
-");
+      const text = [selectedUpdate.body || selectedUpdate.summary || "", link].filter(Boolean).join("\n\n");
       if (navigator.share) {
         try {
           await navigator.share({ title:selectedUpdate.title || "NGC Update", text });
@@ -902,7 +910,7 @@
       const button = event.target.closest("[data-filter]");
       if (!button) return;
       notificationFilter = button.dataset.filter;
-      localStorage.setItem("ngcNotificationFilter", notificationFilter);
+      storageSet("ngcNotificationFilter", notificationFilter);
       renderUpdates();
     });
     document.getElementById("detailBack").addEventListener("click", closeUpdateDetail);
