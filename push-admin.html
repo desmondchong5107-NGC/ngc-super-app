@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#071c36">
-  <title>NGC Campaign Update</title>
+  <title>NGC Notification Admin</title>
   <style>
     :root { font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif; color:#10223a; background:#e8f4ff; --blue:#1578ff; --navy:#071c36; --muted:#62748a; --line:rgba(17,54,93,.13); }
     * { box-sizing:border-box; }
@@ -17,6 +17,9 @@
     h1 { font-size:22px; letter-spacing:-.035em; margin:0; }
     header p,.hint { color:var(--muted); font-size:12px; margin:3px 0 0; line-height:1.45; }
     .back { min-height:42px; padding:0 13px; display:inline-flex; align-items:center; border:1px solid var(--line); border-radius:14px; color:#0b5ed7; background:rgba(255,255,255,.68); text-decoration:none; font-size:13px; font-weight:750; }
+    .mode-switch { display:grid; grid-template-columns:1fr 1fr; gap:4px; padding:4px; margin-top:18px; border:1px solid var(--line); border-radius:17px; background:rgba(7,28,54,.055); }
+    .mode-switch button { min-height:44px; padding:0 10px; border-radius:13px; color:var(--muted); background:transparent; box-shadow:none; }
+    .mode-switch button.active { color:white; background:linear-gradient(145deg,#0b5ed7,#1578ff); box-shadow:0 8px 18px rgba(21,120,255,.2); }
     h2 { margin:0 0 5px; font-size:17px; letter-spacing:-.02em; }
     label { display:block; margin:14px 2px 7px; color:var(--muted); font-size:10px; font-weight:850; letter-spacing:.09em; text-transform:uppercase; }
     input,textarea,select { width:100%; min-height:48px; padding:12px 13px; border:1px solid var(--line); border-radius:15px; background:rgba(255,255,255,.78); color:#10223a; font:inherit; font-size:16px; outline:0; box-shadow:inset 0 1px 0 white; }
@@ -54,12 +57,16 @@
   <main>
     <section class="glass">
       <header>
-        <div class="brand"><img src="ngc-logo.png" alt="NGC"><div><h1>Campaign Update</h1><p>Generate · Publish · Share</p></div></div>
+        <div class="brand"><img src="ngc-logo.png" alt="NGC"><div><h1>Notification Admin</h1><p>Generate · Publish · Share</p></div></div>
         <a class="back" href="./index.html">← Back to App</a>
       </header>
+      <div class="mode-switch" role="tablist" aria-label="Notification type">
+        <button id="campaignTab" class="active" type="button" role="tab" aria-selected="true">Campaign Update</button>
+        <button id="generalTab" type="button" role="tab" aria-selected="false">General Info</button>
+      </div>
     </section>
 
-    <section class="glass">
+    <section class="glass" data-mode="campaign">
       <h2>1. Load weekly results</h2>
       <p class="hint">Automatically reads sales, cases and Agent movement from the HERO 88 tracker. Default: last completed Monday–Sunday.</p>
       <div class="grid2">
@@ -75,7 +82,7 @@
       </div>
     </section>
 
-    <section id="editSection" class="glass hidden">
+    <section id="editSection" class="glass hidden" data-mode="campaign">
       <h2>2. Confirm case types</h2>
       <p class="hint">The tracker does not store Submission / Referral yet. Adjust the split below before generating.</p>
       <div class="grid2">
@@ -88,7 +95,7 @@
       <button id="generate" class="load" type="button">Generate Weekly Summary</button>
     </section>
 
-    <section id="publishSection" class="glass hidden">
+    <section id="publishSection" class="glass hidden" data-mode="campaign">
       <h2>3. Preview & publish</h2>
       <label for="title">Update Title</label><input id="title" maxlength="80">
       <label for="summary">Push Preview</label><textarea id="summary" maxlength="220"></textarea>
@@ -101,6 +108,34 @@
       </div>
       <p id="publishStatus" class="status" role="status" aria-live="polite"></p>
     </section>
+
+    <section id="generalSection" class="glass hidden" data-mode="general">
+      <h2>General Info</h2>
+      <p class="hint">For announcements, meetings, reminders, training, events or any information not related to a campaign report.</p>
+      <label for="generalCategory">Category</label>
+      <select id="generalCategory">
+        <option>General Info</option>
+        <option>Important Notice</option>
+        <option>Reminder</option>
+        <option>Event</option>
+        <option>Training</option>
+      </select>
+      <label for="generalTitle">Notification Title</label>
+      <input id="generalTitle" maxlength="80" placeholder="Example: Monday Team Meeting">
+      <label for="generalSummary">Push Preview</label>
+      <textarea id="generalSummary" maxlength="220" placeholder="A short message users can understand from the lock screen."></textarea>
+      <label for="generalBody">Full Information</label>
+      <textarea id="generalBody" style="min-height:260px" placeholder="Add the complete details, date, time, venue and anything the team needs to prepare."></textarea>
+      <label for="generalUrl">Optional Link</label>
+      <input id="generalUrl" type="url" inputmode="url" placeholder="https://">
+      <label for="generalToken">Private Admin Key</label>
+      <input id="generalToken" type="password" autocomplete="current-password" placeholder="Paste your private admin key">
+      <div class="actions">
+        <button id="generalPublish" type="button">Publish General Info</button>
+        <button id="generalShare" class="share" type="button">Share to WhatsApp</button>
+      </div>
+      <p id="generalStatus" class="status" role="status" aria-live="polite"></p>
+    </section>
   </main>
 
   <script>
@@ -110,6 +145,21 @@
     const SUMMARY_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqaHdib3ZxdGN1amp3dmpuaXl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU1MDYyMjksImV4cCI6MjA4MTA4MjIyOX0.GBf7fuVOE9m3jCcPGSaMWrfWyaRG6Bo3p5kb8wE6ZFo";
     const $ = id => document.getElementById(id);
     let report = null;
+
+    function switchMode(mode) {
+      const campaign = mode === "campaign";
+      document.querySelectorAll('[data-mode="campaign"]').forEach(section => {
+        let hidden = !campaign;
+        if (campaign && section.id === "editSection") hidden = !report;
+        if (campaign && section.id === "publishSection") hidden = !$("body").value.trim();
+        section.classList.toggle("hidden", hidden);
+      });
+      $("generalSection").classList.toggle("hidden", campaign);
+      $("campaignTab").classList.toggle("active", campaign);
+      $("generalTab").classList.toggle("active", !campaign);
+      $("campaignTab").setAttribute("aria-selected", String(campaign));
+      $("generalTab").setAttribute("aria-selected", String(!campaign));
+    }
 
     function isoDate(date) { return date.toISOString().slice(0, 10); }
     function setDefaultWeek() {
@@ -294,10 +344,66 @@
       window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener");
     }
 
+    function generalShareText() {
+      const body = $("generalBody").value.trim();
+      const link = $("generalUrl").value.trim();
+      return [body, link].filter(Boolean).join("\n\n");
+    }
+
+    async function publishGeneral() {
+      const token = $("generalToken").value.trim();
+      const title = $("generalTitle").value.trim();
+      const summary = $("generalSummary").value.trim();
+      const body = $("generalBody").value.trim();
+      if (!token) return setStatus("generalStatus", "Enter your private admin key.", "error");
+      if (!title || !summary || !body) return setStatus("generalStatus", "Title, Push Preview and Full Information are required.", "error");
+      $("generalPublish").disabled = true;
+      setStatus("generalStatus", "Publishing General Info…");
+      try {
+        const response = await fetch(PUSH_API, {
+          method:"POST",
+          headers:{ "Content-Type":"application/json", "apikey":PUSH_KEY, "Authorization":"Bearer " + PUSH_KEY },
+          body:JSON.stringify({
+            action:"publish",
+            adminToken:token,
+            campaignKey:"general",
+            campaignTitle:$("generalCategory").value,
+            title,
+            summary,
+            body,
+            targetUrl:$("generalUrl").value,
+            payload:{ type:"general", category:$("generalCategory").value }
+          })
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Publish failed");
+        const push = result.push || {};
+        setStatus("generalStatus", "Published. Push sent to " + (push.sent || 0) + " of " + (push.total || 0) + " subscribed device(s).", "success");
+      } catch (error) {
+        setStatus("generalStatus", error.message === "Unauthorized" ? "Admin key is incorrect." : (error.message || "Could not publish."), "error");
+      } finally {
+        $("generalPublish").disabled = false;
+      }
+    }
+
+    async function shareGeneral() {
+      const text = generalShareText();
+      if (!text) return setStatus("generalStatus", "Enter the Full Information first.", "error");
+      if (navigator.share) {
+        try { await navigator.share({ title:$("generalTitle").value || "General Info", text }); return; }
+        catch (error) { if (error && error.name === "AbortError") return; }
+      }
+      window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener");
+    }
+
+    $("campaignTab").addEventListener("click", () => switchMode("campaign"));
+    $("generalTab").addEventListener("click", () => switchMode("general"));
     $("load").addEventListener("click", loadResults);
     $("generate").addEventListener("click", generateSummary);
     $("publish").addEventListener("click", publishUpdate);
     $("share").addEventListener("click", shareUpdate);
+    $("generalPublish").addEventListener("click", publishGeneral);
+    $("generalShare").addEventListener("click", shareGeneral);
     setDefaultWeek();
   </script>
 </body>

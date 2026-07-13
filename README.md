@@ -18,6 +18,7 @@ https://ngc-super-app.vercel.app
 - In-app Notification Centre with unread status
 - Automatic HERO 88 weekly-summary generation
 - Protected Campaign Update publisher
+- General Info publisher for announcements, reminders, events and training
 - One-tap WhatsApp sharing
 
 ## Install on iPhone
@@ -32,7 +33,12 @@ Web Push on iPhone requires iOS 16.4 or later and the installed Home Screen app.
 
 ## Campaign Update Admin
 
-The publisher is available at `https://ngc-super-app.vercel.app/push-admin.html` and requires the private admin key. It loads the previous completed week from the HERO 88 tracker, lets the admin confirm submission/referral counts, generates the full weekly summary, publishes it to the in-app Notification Centre, sends a short push alert, and opens the iOS share sheet for WhatsApp.
+The publisher is available at `https://ngc-super-app.vercel.app/push-admin.html` and requires the private admin key.
+
+- **Campaign Update** loads the previous completed week from the HERO 88 tracker, lets the admin confirm submission/referral counts, and generates the full weekly summary.
+- **General Info** publishes announcements, reminders, events, training details or other team information.
+
+Both modes publish to the in-app Notification Centre, send a short push alert, and support the iOS share sheet for WhatsApp.
 
 The VAPID private key, admin key, database credentials, and subscription records are stored only in the protected Supabase backend; they are not included in this public repository.
 

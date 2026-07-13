@@ -64,6 +64,17 @@ function safeTargetUrl(value: unknown) {
   }
 }
 
+function safeExternalUrl(value: unknown) {
+  const candidate = cleanText(value, 500);
+  if (!candidate) return null;
+  try {
+    const url = new URL(candidate);
+    return url.protocol === "https:" ? url.href : null;
+  } catch {
+    return null;
+  }
+}
+
 async function sendPush(
   supabase: ReturnType<typeof createClient>,
   settings: { vapid_public_key: string; vapid_private_key: string },
@@ -198,7 +209,7 @@ Deno.serve(async (req: Request) => {
       const summary = cleanText(body.summary, MAX_BODY);
       const updateBody = cleanText(body.body, MAX_UPDATE_BODY);
       if (!title || !summary || !updateBody) return json({ error: "Title, summary and update are required" }, 400, origin);
-      const targetUrl = safeTargetUrl(body.targetUrl);
+      const targetUrl = safeExternalUrl(body.targetUrl);
       const payload = body.payload && typeof body.payload === "object" && !Array.isArray(body.payload) ? body.payload : {};
 
       const { data: update, error } = await supabase.from("campaign_updates").insert({
