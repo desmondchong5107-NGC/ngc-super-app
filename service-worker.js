@@ -1,4 +1,4 @@
-const CACHE_NAME = "ngc-super-app-v16";
+const CACHE_NAME = "ngc-super-app-v17";
 const BADGE_DB_NAME = "ngc-super-app-state";
 const BADGE_STORE_NAME = "keyval";
 const APP_SHELL = [

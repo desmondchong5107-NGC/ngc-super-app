@@ -163,15 +163,21 @@
     .filter-button.active { color:white; border-color:transparent; background:linear-gradient(145deg,#0c65df,#1980ff); box-shadow:0 8px 18px rgba(21,120,255,.2),inset 0 1px 0 rgba(255,255,255,.24); }
     .filter-count { min-width:19px; height:19px; padding:0 5px; display:inline-grid; place-items:center; border-radius:999px; color:#536b84; background:rgba(90,116,145,.09); font-size:9px; font-weight:850; }
     .filter-button.active .filter-count { color:white; background:rgba(255,255,255,.2); }
-    .notification-list { min-height:150px; overflow:auto; padding:0 12px 14px; display:grid; grid-auto-rows:max-content; align-content:start; gap:9px; overscroll-behavior:contain; }
+    .notification-list { min-height:150px; overflow:auto; padding:0 12px 14px; display:grid; grid-auto-rows:max-content; align-content:start; gap:9px; overscroll-behavior:contain; touch-action:pan-y; }
+    .pull-refresh-hint { height:0; margin:0 0 -9px; overflow:hidden; display:grid; place-items:center; color:#637b94; font-size:10px; font-weight:800; opacity:0; transition:height .2s ease,opacity .2s ease; }
     .update-group-title { padding:7px 7px 1px; color:#71849a; font-size:9px; font-weight:850; letter-spacing:.11em; text-transform:uppercase; }
-    .notification-empty { padding:42px 22px; color:var(--muted); text-align:center; font-size:14px; line-height:1.5; }
+    .notification-empty { min-height:230px; padding:42px 22px; display:grid; place-content:center; justify-items:center; color:var(--muted); text-align:center; font-size:13px; line-height:1.5; }
+    .notification-empty::before { content:"✓"; width:48px; height:48px; margin-bottom:13px; display:grid; place-items:center; border-radius:16px; color:#078059; background:linear-gradient(145deg,rgba(218,248,237,.95),rgba(245,255,251,.82)); box-shadow:inset 0 1px 0 white,0 12px 25px -18px rgba(9,128,89,.55); font-size:20px; font-weight:850; }
+    .notification-empty strong { color:var(--navy); font-size:14px; }
+    .notification-empty span { display:block; max-width:260px; margin-top:4px; }
+    .empty-action { min-height:36px; margin-top:14px; padding:0 13px; border:0; border-radius:12px; color:#0b5ed7; background:rgba(21,120,255,.09); font-size:11px; font-weight:820; cursor:pointer; }
     .update-card {
       width:100%; min-height:88px; height:auto; padding:13px 14px; display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:12px; align-items:center;
       border:1px solid rgba(255,255,255,.88); border-radius:20px; text-align:left; cursor:pointer;
       color:var(--ink); background:linear-gradient(145deg,rgba(255,255,255,.79),rgba(249,252,255,.62)); box-shadow:inset 0 1px 0 rgba(255,255,255,.96),0 10px 25px -22px rgba(7,28,54,.38);
       transition:transform .18s cubic-bezier(.16,1,.3,1),background .2s ease,box-shadow .2s ease;
     }
+    .update-card.swiping { transition:none; }
     .update-card:hover { background:rgba(255,255,255,.9); box-shadow:inset 0 1px 0 white,0 14px 30px -22px rgba(7,28,54,.32); }
     .update-card:active { transform:scale(.982); }
     .update-card.unread { border-color:rgba(81,164,255,.22); background:linear-gradient(145deg,rgba(228,243,255,.97),rgba(255,255,255,.82)); }
@@ -192,7 +198,8 @@
     .notification-settings span { display:block; margin-top:2px; color:var(--muted); font-size:11px; }
     .push-toggle { min-height:38px; padding:0 13px; border:0; border-radius:13px; cursor:pointer; color:white; background:linear-gradient(145deg,#0b5ed7,#1578ff); font-size:11px; font-weight:820; box-shadow:0 8px 18px -10px rgba(21,120,255,.6),inset 0 1px 0 rgba(255,255,255,.24); }
     .push-toggle.active { background:linear-gradient(145deg,#087853,#22b77f); }
-    .notification-detail-view { position:absolute; z-index:4; inset:0; display:grid; grid-template-rows:auto minmax(0,1fr) auto; background:linear-gradient(160deg,rgba(252,254,255,.98),rgba(237,247,255,.96)); animation:detailIn .3s cubic-bezier(.16,1,.3,1); }
+    .notification-detail-view { position:absolute; z-index:4; inset:0; display:grid; grid-template-rows:auto minmax(0,1fr) auto; background:linear-gradient(160deg,rgba(252,254,255,.98),rgba(237,247,255,.96)); animation:detailIn .3s cubic-bezier(.16,1,.3,1); will-change:transform; }
+    .notification-detail-view.gesture-active { animation:none; transition:none; }
     .notification-detail-view[hidden] { display:none; }
     @keyframes detailIn { from { opacity:.45; transform:translateX(24px); } }
     .detail-header { padding:14px 16px 12px; display:flex; align-items:center; gap:11px; border-bottom:1px solid rgba(17,54,93,.08); }
@@ -280,12 +287,15 @@
     iframe.active { display:block; }
     .toast {
       position:fixed; z-index:100; left:50%; bottom:max(22px,calc(env(safe-area-inset-bottom) + 12px));
-      max-width:calc(100% - 32px); padding:11px 15px; border-radius:15px; transform:translate(-50%,18px);
+      max-width:calc(100% - 32px); padding:11px 13px 11px 15px; border-radius:15px; transform:translate(-50%,18px);
+      display:flex; align-items:center; justify-content:center; gap:14px;
       color:white; background:rgba(7,28,54,.9); border:1px solid rgba(255,255,255,.18);
       box-shadow:0 18px 44px rgba(7,28,54,.28); backdrop-filter:blur(22px) saturate(150%); -webkit-backdrop-filter:blur(22px) saturate(150%);
       font-size:13px; font-weight:700; text-align:center; opacity:0; pointer-events:none; transition:opacity .2s ease,transform .28s cubic-bezier(.16,1,.3,1);
     }
     .toast.show { opacity:1; transform:translate(-50%,0); }
+    .toast.actionable { pointer-events:auto; text-align:left; }
+    .toast button { min-height:32px; padding:0 11px; border:0; border-radius:10px; color:#102a46; background:white; font:inherit; font-size:11px; font-weight:850; cursor:pointer; }
     @media (max-width: 650px) {
       .home-inner { padding-left: 16px; padding-right: 16px; }
       .app-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; max-width:350px; }
@@ -462,6 +472,10 @@
     let badgeSyncReady = false;
     let lastSuccessfulUpdateFetch = 0;
     let campaignUpdates = [];
+    let pullRefreshHint = null;
+    let pullStartY = 0;
+    let pullStartX = 0;
+    let pullDistance = 0;
     function storageGet(key, fallback = "") {
       try { return localStorage.getItem(key) ?? fallback; }
       catch { return fallback; }
@@ -502,11 +516,26 @@
       storageSet("ngcInstallationId", installationId);
     }
 
-    function showToast(message) {
+    function showToast(message, actionLabel = "", onAction = null) {
       clearTimeout(toastTimer);
-      toast.textContent = message;
+      toast.textContent = "";
+      toast.classList.toggle("actionable", Boolean(actionLabel && onAction));
+      const copy = document.createElement("span");
+      copy.textContent = message;
+      toast.appendChild(copy);
+      if (actionLabel && onAction) {
+        const action = document.createElement("button");
+        action.type = "button";
+        action.textContent = actionLabel;
+        action.addEventListener("click", () => {
+          clearTimeout(toastTimer);
+          toast.classList.remove("show", "actionable");
+          onAction();
+        }, { once:true });
+        toast.appendChild(action);
+      }
       toast.classList.add("show");
-      toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+      toastTimer = setTimeout(() => toast.classList.remove("show", "actionable"), actionLabel ? 4200 : 2600);
     }
 
     function applyCampaignConfig(config) {
@@ -654,15 +683,112 @@
       updateFilterUI();
     }
 
+    function archiveUpdateWithUndo(update) {
+      if (!update || archivedUpdateIds.has(update.id)) return;
+      archivedUpdateIds.add(update.id);
+      readUpdateIds.add(update.id);
+      saveArchivedUpdates();
+      saveReadUpdates();
+      if (selectedUpdate?.id === update.id) closeUpdateDetail();
+      renderUpdates();
+      showToast("Notification archived.", "Undo", () => {
+        archivedUpdateIds.delete(update.id);
+        saveArchivedUpdates();
+        renderUpdates();
+        showToast("Notification restored.");
+      });
+    }
+
+    function attachCardSwipe(card, update) {
+      if (archivedUpdateIds.has(update.id)) return;
+      let startX = 0;
+      let startY = 0;
+      let deltaX = 0;
+      let horizontal = false;
+      card.addEventListener("touchstart", event => {
+        const touch = event.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        deltaX = 0;
+        horizontal = false;
+      }, { passive:true });
+      card.addEventListener("touchmove", event => {
+        const touch = event.touches[0];
+        const dx = touch.clientX - startX;
+        const dy = touch.clientY - startY;
+        if (!horizontal && Math.abs(dx) > 9 && Math.abs(dx) > Math.abs(dy) * 1.25) horizontal = true;
+        if (!horizontal || dx >= 0) return;
+        event.preventDefault();
+        deltaX = Math.max(-92, dx);
+        card.classList.add("swiping");
+        card.style.transform = "translateX(" + deltaX + "px)";
+        card.style.opacity = String(1 - Math.min(.28, Math.abs(deltaX) / 330));
+      }, { passive:false });
+      card.addEventListener("touchend", () => {
+        if (!horizontal) return;
+        card.dataset.ignoreClick = "true";
+        if (deltaX < -62) {
+          card.style.transition = "transform .22s ease,opacity .22s ease";
+          card.style.transform = "translateX(-115%)";
+          card.style.opacity = "0";
+          setTimeout(() => archiveUpdateWithUndo(update), 170);
+        } else {
+          card.style.transition = "transform .2s ease,opacity .2s ease";
+          card.style.transform = "";
+          card.style.opacity = "";
+          setTimeout(() => {
+            card.classList.remove("swiping");
+            card.style.transition = "";
+            delete card.dataset.ignoreClick;
+          }, 230);
+        }
+      }, { passive:true });
+    }
+
     function renderUpdates() {
       notificationList.textContent = "";
+      pullRefreshHint = document.createElement("div");
+      pullRefreshHint.className = "pull-refresh-hint";
+      pullRefreshHint.textContent = "Pull to refresh";
+      notificationList.appendChild(pullRefreshHint);
       const visible = campaignUpdates.filter(matchesNotificationFilter);
       if (!visible.length) {
         const empty = document.createElement("div");
         empty.className = "notification-empty";
-        empty.textContent = campaignUpdates.length
-          ? "No notifications match this filter."
-          : "New Campaign Updates and General Info will appear here.";
+        const title = document.createElement("strong");
+        const message = document.createElement("span");
+        if (notificationSearchValue.trim()) {
+          title.textContent = "No search results";
+          message.textContent = "Try a different keyword or clear your search.";
+          const clear = document.createElement("button");
+          clear.type = "button";
+          clear.className = "empty-action";
+          clear.textContent = "Clear Search";
+          clear.addEventListener("click", () => {
+            notificationSearch.value = "";
+            notificationSearchValue = "";
+            storageSet("ngcNotificationSearch", "");
+            renderUpdates();
+            notificationSearch.focus();
+          });
+          empty.append(title, message, clear);
+        } else if (notificationFilter === "archived") {
+          title.textContent = "Nothing archived";
+          message.textContent = "Swipe left on a notification when you want to tidy your inbox.";
+          empty.append(title, message);
+        } else if (notificationFilter === "unread") {
+          title.textContent = "You're all caught up";
+          message.textContent = "There are no unread notifications right now.";
+          empty.append(title, message);
+        } else if (campaignUpdates.length) {
+          title.textContent = "No notifications here";
+          message.textContent = "Choose another filter to view more updates.";
+          empty.append(title, message);
+        } else {
+          title.textContent = "No updates yet";
+          message.textContent = "Campaign Updates and General Info will appear here.";
+          empty.append(title, message);
+        }
         notificationList.appendChild(empty);
         refreshUnreadUI();
         return;
@@ -706,7 +832,11 @@
         time.className = "update-time";
         time.textContent = friendlyUpdateTime(update.published_at);
         card.append(symbol, copy, time);
-        card.addEventListener("click", () => openUpdateDetail(update));
+        attachCardSwipe(card, update);
+        card.addEventListener("click", () => {
+          if (card.dataset.ignoreClick === "true") return;
+          openUpdateDetail(update);
+        });
         card.addEventListener("keydown", event => {
           if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
@@ -788,6 +918,9 @@
     }
 
     function closeUpdateDetail() {
+      notificationDetail.classList.remove("gesture-active");
+      notificationDetail.style.transform = "";
+      notificationDetail.style.transition = "";
       notificationDetail.hidden = true;
       selectedUpdate = null;
       const firstCard = notificationList.querySelector(".update-card");
@@ -818,10 +951,8 @@
         detailArchive.textContent = "Archive";
         showToast("Moved back to notifications.");
       } else {
-        archivedUpdateIds.add(selectedUpdate.id);
-        readUpdateIds.add(selectedUpdate.id);
-        detailArchive.textContent = "Unarchive";
-        showToast("Notification archived.");
+        archiveUpdateWithUndo(selectedUpdate);
+        return;
       }
       saveArchivedUpdates();
       saveReadUpdates();
@@ -1067,6 +1198,85 @@
       storageSet("ngcNotificationSearch", notificationSearchValue);
       renderUpdates();
     });
+    notificationList.addEventListener("touchstart", event => {
+      if (notificationList.scrollTop > 0 || updatesLoading || !notificationDetail.hidden) return;
+      const touch = event.touches[0];
+      pullStartY = touch.clientY;
+      pullStartX = touch.clientX;
+      pullDistance = 0;
+    }, { passive:true });
+    notificationList.addEventListener("touchmove", event => {
+      if (!pullStartY || notificationList.scrollTop > 0 || !pullRefreshHint) return;
+      const touch = event.touches[0];
+      const dy = touch.clientY - pullStartY;
+      const dx = touch.clientX - pullStartX;
+      if (dy <= 0 || Math.abs(dx) > dy) return;
+      event.preventDefault();
+      pullDistance = Math.min(100, dy);
+      const height = Math.min(46, pullDistance * .48);
+      pullRefreshHint.style.height = height + "px";
+      pullRefreshHint.style.opacity = String(Math.min(1, pullDistance / 45));
+      pullRefreshHint.textContent = pullDistance > 70 ? "Release to refresh" : "Pull to refresh";
+    }, { passive:false });
+    notificationList.addEventListener("touchend", () => {
+      if (!pullStartY) return;
+      const shouldRefresh = pullDistance > 70 && !updatesLoading;
+      pullStartY = 0;
+      pullStartX = 0;
+      pullDistance = 0;
+      if (shouldRefresh && pullRefreshHint) {
+        pullRefreshHint.textContent = "Refreshing…";
+        pullRefreshHint.style.height = "36px";
+        pullRefreshHint.style.opacity = "1";
+        loadCampaignUpdates(false);
+      } else if (pullRefreshHint) {
+        pullRefreshHint.style.height = "0";
+        pullRefreshHint.style.opacity = "0";
+      }
+    }, { passive:true });
+
+    let detailSwipeStartX = null;
+    let detailSwipeStartY = 0;
+    let detailSwipeDistance = 0;
+    notificationDetail.addEventListener("touchstart", event => {
+      const touch = event.touches[0];
+      detailSwipeStartX = null;
+      if (touch.clientX > 36) return;
+      detailSwipeStartX = touch.clientX;
+      detailSwipeStartY = touch.clientY;
+      detailSwipeDistance = 0;
+    }, { passive:true });
+    notificationDetail.addEventListener("touchmove", event => {
+      if (detailSwipeStartX === null) return;
+      const touch = event.touches[0];
+      const dx = touch.clientX - detailSwipeStartX;
+      const dy = touch.clientY - detailSwipeStartY;
+      if (dx <= 0 || Math.abs(dy) > dx) return;
+      event.preventDefault();
+      detailSwipeDistance = Math.min(130, dx);
+      notificationDetail.classList.add("gesture-active");
+      notificationDetail.style.transform = "translateX(" + detailSwipeDistance + "px)";
+    }, { passive:false });
+    notificationDetail.addEventListener("touchend", () => {
+      if (!notificationDetail.classList.contains("gesture-active")) {
+        detailSwipeStartX = null;
+        detailSwipeStartY = 0;
+        return;
+      }
+      if (detailSwipeDistance > 72) {
+        closeUpdateDetail();
+      } else {
+        notificationDetail.style.transition = "transform .2s ease";
+        notificationDetail.style.transform = "";
+        setTimeout(() => {
+          notificationDetail.classList.remove("gesture-active");
+          notificationDetail.style.transition = "";
+        }, 220);
+      }
+      detailSwipeStartX = null;
+      detailSwipeStartY = 0;
+      detailSwipeDistance = 0;
+    }, { passive:true });
     document.getElementById("detailBack").addEventListener("click", closeUpdateDetail);
     detailUnread.addEventListener("click", toggleSelectedReadState);
     detailArchive.addEventListener("click", toggleSelectedArchiveState);
