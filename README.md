@@ -15,7 +15,11 @@ https://ngc-super-app.vercel.app
 - Add to Home Screen support
 - Offline calculator access through a service worker
 - iPhone Web Push notification opt-in
-- In-app Notification Centre with unread status
+- iOS-style Notification Inbox with unread status
+- All / Unread / Campaign / General filters
+- New and Earlier notification grouping
+- Full notification details, campaign metrics and sharing
+- Refresh, Mark Unread and Mark All Read controls
 - Automatic HERO 88 weekly-summary generation
 - Protected Campaign Update publisher
 - General Info publisher for announcements, reminders, events and training

@@ -1,4 +1,4 @@
-const CACHE_NAME = "ngc-super-app-v3";
+const CACHE_NAME = "ngc-super-app-v4";
 const APP_SHELL = [
   "./",
   "./index.html",
