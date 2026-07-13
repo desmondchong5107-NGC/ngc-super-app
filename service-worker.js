@@ -1,4 +1,4 @@
-const CACHE_NAME = "ngc-super-app-v1";
+const CACHE_NAME = "ngc-super-app-v2";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -60,5 +60,36 @@ self.addEventListener("fetch", event => {
       if (response.ok) caches.open(CACHE_NAME).then(cache => cache.put(request, response.clone()));
       return response;
     }))
+  );
+});
+
+self.addEventListener("push", event => {
+  let payload = {};
+  try { payload = event.data ? event.data.json() : {}; }
+  catch { payload = { body: event.data ? event.data.text() : "" }; }
+  const title = payload.title || "NGC Super App";
+  const options = {
+    body: payload.body || "You have a new update.",
+    icon: "./icon-192.png",
+    badge: "./icon-192.png",
+    tag: payload.tag || "ngc-update",
+    data: { url: payload.url || "./index.html" }
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", event => {
+  event.notification.close();
+  const target = new URL(event.notification.data?.url || "./index.html", self.location.origin).href;
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then(windows => {
+      for (const client of windows) {
+        if (client.url.startsWith(self.location.origin) && "focus" in client) {
+          client.navigate(target);
+          return client.focus();
+        }
+      }
+      return clients.openWindow ? clients.openWindow(target) : undefined;
+    })
   );
 });

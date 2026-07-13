@@ -91,6 +91,24 @@
       color:var(--muted); background:linear-gradient(145deg,rgba(255,255,255,.68),rgba(255,255,255,.32)); font-size:12px; font-weight:700;
       box-shadow:inset 0 1px 0 white,0 8px 18px rgba(18,62,108,.07);
     }
+    .brand-actions { display:flex; align-items:center; gap:8px; }
+    .notify-button {
+      position:relative; width:42px; height:42px; padding:0; display:grid; place-items:center; cursor:pointer;
+      color:var(--navy); border:1px solid rgba(255,255,255,.82); border-radius:14px;
+      background:linear-gradient(145deg,rgba(255,255,255,.78),rgba(255,255,255,.38));
+      box-shadow:inset 0 1px 0 white,0 8px 20px rgba(18,62,108,.09);
+      transition:transform .2s cubic-bezier(.16,1,.3,1),color .2s ease,background .2s ease;
+    }
+    .notify-button svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+    .notify-button::after {
+      content:""; position:absolute; right:7px; top:7px; width:8px; height:8px; border-radius:50%;
+      background:#ff9f0a; border:1.5px solid white; box-shadow:0 2px 6px rgba(182,104,0,.28);
+    }
+    .notify-button.active { color:white; background:linear-gradient(145deg,#0a8f63,#22c58b); }
+    .notify-button.active::after { background:#34c759; }
+    .notify-button:active { transform:scale(.93); }
+    .notify-button:disabled { opacity:.55; cursor:wait; }
+    .notify-button:focus-visible { outline:4px solid rgba(21,120,255,.22); outline-offset:2px; }
     .app-grid {
       width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 32px; max-width: 500px; margin: 0 auto; align-self: center;
@@ -173,11 +191,11 @@
       .back { min-width: 88px; min-height: 44px; }
     }
     @media (prefers-contrast:more) {
-      .brandbar,.toolbar,.back { border-color:rgba(7,28,54,.28); }
+      .brandbar,.toolbar,.back,.notify-button { border-color:rgba(7,28,54,.28); }
       .app-card h2,.tool-title strong,.back { color:#00152d; }
     }
     @media (prefers-reduced-transparency:reduce) {
-      .brandbar,.toolbar,.back { background:#fff; backdrop-filter:none; -webkit-backdrop-filter:none; }
+      .brandbar,.toolbar,.back,.notify-button { background:#fff; backdrop-filter:none; -webkit-backdrop-filter:none; }
     }
     @media (prefers-reduced-motion:reduce) { .app-card,.back { transition:none; } .home::before,.home::after,.home:not([hidden]),.tool.active { animation:none; } }
   </style>
@@ -190,7 +208,12 @@
           <div class="brand-mark"><img src="ngc-logo.png" alt="NGC"></div>
           <div class="brand-copy"><strong>NGC Super App</strong><span>Everyday tools, all in one place</span></div>
         </div>
-        <div class="version">Calculator Hub</div>
+        <div class="brand-actions">
+          <button id="notificationButton" class="notify-button" type="button" aria-label="Turn on notifications" aria-pressed="false" title="Notifications">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path></svg>
+          </button>
+          <div class="version">Calculator Hub</div>
+        </div>
       </div>
 
       <section class="app-grid" aria-label="Available calculators">
@@ -242,7 +265,9 @@
     const campaignCard = document.getElementById("campaignCard");
     const campaignLabel = document.getElementById("campaignLabel");
     const campaignBadge = document.getElementById("campaignBadge");
+    const notificationButton = document.getElementById("notificationButton");
     const toast = document.getElementById("toast");
+    const PUSH_API_URL = "https://bzqgademvvtbpthqoxoj.supabase.co/functions/v1/push-api";
     const defaultCampaign = {
       enabled: true,
       title: "Campaign",
@@ -252,6 +277,7 @@
       endDate: null
     };
     let toastTimer;
+    let notificationBusy = false;
 
     function showToast(message) {
       clearTimeout(toastTimer);
@@ -293,6 +319,107 @@
       return new TextDecoder().decode(bytes);
     }
 
+    function isIOS() {
+      return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    }
+
+    function isStandalone() {
+      return matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+    }
+
+    function applicationServerKey(value) {
+      const padding = "=".repeat((4 - value.length % 4) % 4);
+      const base64 = (value + padding).replace(/-/g, "+").replace(/_/g, "/");
+      return Uint8Array.from(atob(base64), character => character.charCodeAt(0));
+    }
+
+    function setNotificationUI(active) {
+      notificationButton.classList.toggle("active", active);
+      notificationButton.setAttribute("aria-pressed", String(active));
+      notificationButton.setAttribute("aria-label", active ? "Turn off notifications" : "Turn on notifications");
+      notificationButton.title = active ? "Notifications On" : "Notifications";
+    }
+
+    async function getPushRegistration() {
+      if (!("serviceWorker" in navigator)) throw new Error("Service workers are not supported");
+      await navigator.serviceWorker.register("service-worker.js");
+      return navigator.serviceWorker.ready;
+    }
+
+    async function refreshNotificationUI() {
+      if (!("PushManager" in window) || !("Notification" in window)) return setNotificationUI(false);
+      try {
+        const registration = await getPushRegistration();
+        setNotificationUI(Boolean(await registration.pushManager.getSubscription()));
+      } catch {
+        setNotificationUI(false);
+      }
+    }
+
+    async function callPushApi(payload) {
+      const response = await fetch(PUSH_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) throw new Error("Push service request failed");
+      return response.json();
+    }
+
+    async function toggleNotifications() {
+      if (notificationBusy) return;
+      if (isIOS() && !isStandalone()) {
+        showToast("On iPhone: Share → Add to Home Screen, then open NGC and tap the bell.");
+        return;
+      }
+      if (!("PushManager" in window) || !("Notification" in window)) {
+        showToast("Push notifications are not supported on this device.");
+        return;
+      }
+
+      notificationBusy = true;
+      notificationButton.disabled = true;
+      try {
+        const registration = await getPushRegistration();
+        const current = await registration.pushManager.getSubscription();
+        if (current) {
+          await callPushApi({ action: "unsubscribe", endpoint: current.endpoint });
+          await current.unsubscribe();
+          setNotificationUI(false);
+          showToast("Notifications turned off.");
+          return;
+        }
+
+        const permission = await Notification.requestPermission();
+        if (permission !== "granted") {
+          showToast(permission === "denied" ? "Notifications are blocked in Settings." : "Notification permission was not granted.");
+          return;
+        }
+
+        const configResponse = await fetch(PUSH_API_URL, { cache: "no-store" });
+        if (!configResponse.ok) throw new Error("Push configuration unavailable");
+        const config = await configResponse.json();
+        const subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: applicationServerKey(config.vapidPublicKey)
+        });
+        try {
+          await callPushApi({ action: "subscribe", subscription: subscription.toJSON() });
+        } catch (error) {
+          await subscription.unsubscribe();
+          throw error;
+        }
+        setNotificationUI(true);
+        showToast("Notifications are on.");
+      } catch (error) {
+        console.error(error);
+        showToast("Could not update notifications. Please try again.");
+      } finally {
+        notificationBusy = false;
+        notificationButton.disabled = false;
+      }
+    }
+
     function openApp(id, updateHash = true) {
       const app = apps[id];
       if (!app) return showHome(updateHash);
@@ -322,6 +449,7 @@
     document.querySelectorAll("[data-open]").forEach(button => {
       button.addEventListener("click", () => openApp(button.dataset.open));
     });
+    notificationButton.addEventListener("click", toggleNotifications);
     campaignCard.addEventListener("click", event => {
       if (!navigator.onLine) {
         event.preventDefault();
@@ -338,7 +466,9 @@
     if (apps[initial]) openApp(initial, false);
     loadCampaignConfig();
     if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
-      window.addEventListener("load", () => navigator.serviceWorker.register("service-worker.js").catch(() => {}));
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("service-worker.js").then(refreshNotificationUI).catch(() => {});
+      });
     }
   </script>
 </body>
