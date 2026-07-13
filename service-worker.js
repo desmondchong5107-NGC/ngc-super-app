@@ -1,11 +1,10 @@
-const CACHE_NAME = "ngc-super-app-v15";
+const CACHE_NAME = "ngc-super-app-v16";
 const BADGE_DB_NAME = "ngc-super-app-state";
 const BADGE_STORE_NAME = "keyval";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./ngc_super_app.html",
-  "./push-admin.html",
   "./manifest.webmanifest",
   "./campaign-config.json",
   "./apple-touch-icon.png",
