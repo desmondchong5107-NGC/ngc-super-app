@@ -1,4 +1,4 @@
-const CACHE_NAME = "ngc-super-app-v7";
+const CACHE_NAME = "ngc-super-app-v8";
 const BADGE_DB_NAME = "ngc-super-app-state";
 const BADGE_STORE_NAME = "keyval";
 const APP_SHELL = [
@@ -64,17 +64,19 @@ async function setStoredBadgeCount(count) {
   return applySystemBadge(safeCount);
 }
 
-async function incrementBackgroundBadge(tag) {
-  let count = 1;
+async function updateBackgroundBadge(tag, suppliedCount) {
+  let count = Number.isFinite(suppliedCount) ? Math.max(0, Math.floor(suppliedCount)) : 1;
   try {
     const db = await openBadgeDatabase();
     const state = await readBadgeState(db);
     const seen = Array.isArray(state.seen) ? state.seen : [];
-    count = Math.max(0, Math.floor(Number(state.count) || 0));
+    const storedCount = Math.max(0, Math.floor(Number(state.count) || 0));
     if (!tag || !seen.includes(tag)) {
-      count += 1;
+      count = Number.isFinite(suppliedCount) ? count : storedCount + 1;
       if (tag) seen.push(tag);
       await writeBadgeState(db, { count, seen:seen.slice(-100) });
+    } else {
+      count = Number.isFinite(suppliedCount) ? count : storedCount;
     }
     db.close();
   } catch {}
@@ -141,18 +143,20 @@ self.addEventListener("push", event => {
   let payload = {};
   try { payload = event.data ? event.data.json() : {}; }
   catch { payload = { body: event.data ? event.data.text() : "" }; }
-  const title = payload.title || "NGC Super App";
+  const proposed = payload.notification || {};
+  const title = proposed.title || payload.title || "NGC Super App";
   const options = {
-    body: payload.body || "You have a new update.",
+    body: proposed.body || payload.body || "You have a new update.",
     icon: "./icon-192.png",
     badge: "./icon-192.png",
-    tag: payload.tag || "ngc-update",
+    tag: proposed.tag || payload.tag || "ngc-update",
     renotify: true,
-    data: { url: payload.url || "./index.html" }
+    data: { url: proposed.navigate || payload.url || "./index.html" }
   };
+  const suppliedBadge = Number(proposed.app_badge ?? payload.badge);
   event.waitUntil(Promise.all([
     self.registration.showNotification(title, options),
-    incrementBackgroundBadge(payload.tag),
+    updateBackgroundBadge(options.tag, suppliedBadge),
     clients.matchAll({ type: "window", includeUncontrolled: true }).then(windows => {
       windows.forEach(client => client.postMessage({ type: "ngc-update" }));
     })

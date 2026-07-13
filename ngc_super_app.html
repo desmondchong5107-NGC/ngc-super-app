@@ -428,6 +428,7 @@
       endDate: null
     };
     let toastTimer;
+    let remoteBadgeTimer;
     let notificationBusy = false;
     let updatesLoading = false;
     let lastSuccessfulUpdateFetch = 0;
@@ -553,6 +554,16 @@
       } catch {}
       const worker = registration?.active || navigator.serviceWorker?.controller;
       if (worker) worker.postMessage({ type:"ngc-set-badge", count:unread });
+      clearTimeout(remoteBadgeTimer);
+      if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
+        remoteBadgeTimer = setTimeout(async () => {
+          try {
+            const ready = await navigator.serviceWorker.ready;
+            const subscription = await ready.pushManager.getSubscription();
+            if (subscription) await callPushApi({ action:"syncBadge", endpoint:subscription.endpoint, count:unread });
+          } catch {}
+        }, 500);
+      }
     }
 
     function refreshUnreadUI() {
