@@ -171,8 +171,20 @@
     .notification-empty strong { color:var(--navy); font-size:14px; }
     .notification-empty span { display:block; max-width:260px; margin-top:4px; }
     .empty-action { min-height:36px; margin-top:14px; padding:0 13px; border:0; border-radius:12px; color:#0b5ed7; background:rgba(21,120,255,.09); font-size:11px; font-weight:820; cursor:pointer; }
+    .update-swipe-shell {
+      position:relative; min-width:0; overflow:hidden; border-radius:20px;
+      background:linear-gradient(145deg,#0b63d9,#1785ff); box-shadow:0 10px 25px -22px rgba(7,28,54,.38);
+    }
+    .swipe-action {
+      position:absolute; z-index:0; inset:0 0 0 auto; width:92px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
+      color:white; font-size:10px; font-weight:850; letter-spacing:.02em; text-align:center; user-select:none; pointer-events:none;
+    }
+    .swipe-action::before {
+      content:""; width:17px; height:13px; border:2px solid currentColor; border-top-width:1px; border-radius:2px 2px 4px 4px;
+      background:linear-gradient(currentColor,currentColor) center 3px / 7px 2px no-repeat; box-shadow:0 -5px 0 -3px currentColor;
+    }
     .update-card {
-      width:100%; min-height:88px; height:auto; padding:13px 14px; display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:12px; align-items:center;
+      position:relative; z-index:1; width:100%; min-height:88px; height:auto; padding:13px 14px; display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:12px; align-items:center;
       border:1px solid rgba(255,255,255,.88); border-radius:20px; text-align:left; cursor:pointer;
       color:var(--ink); background:linear-gradient(145deg,rgba(255,255,255,.79),rgba(249,252,255,.62)); box-shadow:inset 0 1px 0 rgba(255,255,255,.96),0 10px 25px -22px rgba(7,28,54,.38);
       transition:transform .18s cubic-bezier(.16,1,.3,1),background .2s ease,box-shadow .2s ease;
@@ -843,7 +855,18 @@
             card.click();
           }
         });
-        notificationList.appendChild(card);
+        if (archivedUpdateIds.has(update.id)) {
+          notificationList.appendChild(card);
+        } else {
+          const swipeShell = document.createElement("div");
+          swipeShell.className = "update-swipe-shell";
+          const swipeAction = document.createElement("span");
+          swipeAction.className = "swipe-action";
+          swipeAction.textContent = "Archive";
+          swipeAction.setAttribute("aria-hidden", "true");
+          swipeShell.append(swipeAction, card);
+          notificationList.appendChild(swipeShell);
+        }
         });
       });
       refreshUnreadUI();
