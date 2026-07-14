@@ -289,8 +289,8 @@
     .detail-action.full { grid-column:1/-1; }
     .detail-action[hidden] { display:none; }
     .app-grid {
-      width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 36px; max-width: 500px; margin: 0 auto; align-self: center;
+      width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 28px; max-width: 650px; margin: 0 auto; align-self: center;
     }
     .app-card {
       appearance:none; width:100%; min-width:0; padding:8px 2px; text-align:center; cursor:pointer; text-decoration:none; font:inherit;
@@ -317,6 +317,24 @@
     .epf-icon { background:#fff; }
     .epf-icon img { width:88%; height:88%; object-fit:contain; border-radius:50%; }
     .comm-icon { background: linear-gradient(145deg, #1459c8, #3f91ff); }
+    .fund-icon { background:linear-gradient(145deg,#4b35bb,#7459e8 56%,#9d8cff); }
+    .fund-symbol {
+      position:relative; width:43px; height:45px; filter:drop-shadow(0 4px 7px rgba(38,24,111,.25));
+    }
+    .fund-symbol::before {
+      content:""; position:absolute; inset:2px 5px 2px 4px; border-radius:7px 10px 8px 8px;
+      background:linear-gradient(155deg,#fff,rgba(255,255,255,.86));
+      clip-path:polygon(0 0,72% 0,100% 25%,100% 100%,0 100%);
+      box-shadow:inset 0 1px 0 white;
+    }
+    .fund-symbol::after {
+      content:""; position:absolute; right:5px; top:2px; width:11px; height:11px;
+      border-radius:0 6px 0 3px; background:rgba(89,64,199,.28);
+    }
+    .fund-trend {
+      position:absolute; z-index:1; left:8px; top:10px; color:#5740c7;
+      font-size:27px; line-height:1; font-weight:900; letter-spacing:-.08em;
+    }
     .campaign-icon { background:linear-gradient(145deg,#8d5512,#e6a73c 56%,#f4ca79); }
     .campaign-symbol { position:relative; width:34px; height:36px; filter:drop-shadow(0 3px 5px rgba(83,43,4,.25)); }
     .campaign-symbol::before { content:""; position:absolute; left:6px; top:2px; width:4px; height:32px; border-radius:999px; background:white; }
@@ -370,7 +388,7 @@
     .toast button { min-height:32px; padding:0 11px; border:0; border-radius:10px; color:#102a46; background:white; font:inherit; font-size:11px; font-weight:850; cursor:pointer; }
     @media (max-width: 650px) {
       .home-inner { padding-left: 16px; padding-right: 16px; }
-      .app-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; max-width:350px; }
+      .app-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px 26px; max-width:280px; }
       .app-card { padding:8px 0; gap:12px; }
       .app-icon { width:76px; height:76px; border-radius:22px; }
       .app-card h2 { font-size:13px; line-height:1.2; }
@@ -397,7 +415,7 @@
 <body>
   <main id="home" class="home">
     <div class="home-inner">
-      <section class="app-grid" aria-label="Available calculators">
+      <section class="app-grid" aria-label="Available tools">
         <button class="app-card" type="button" data-open="epf" aria-label="Open EPF Eligibility Calculator">
           <span class="app-icon epf-icon" aria-hidden="true"><img src="epf-logo.png" alt=""></span>
           <h2>EPF</h2>
@@ -407,6 +425,11 @@
           <span class="app-icon comm-icon" aria-hidden="true"><span class="icon-bars"><i></i><i></i><i></i></span></span>
           <h2>Commission</h2>
         </button>
+
+        <a id="fundInfoCard" class="app-card" href="https://www.kenangainvestors.com.my/fund-list" target="_blank" rel="noopener noreferrer" aria-label="Open Kenanga Fund Info website">
+          <span class="app-icon fund-icon" aria-hidden="true"><span class="fund-symbol"><span class="fund-trend">↗</span></span></span>
+          <h2>Fund Info</h2>
+        </a>
 
         <a id="campaignCard" class="app-card" href="https://hero88-tracker.vercel.app/view" target="_blank" rel="noopener noreferrer" aria-label="Open Campaign website">
           <span id="campaignBadge" class="app-badge" hidden></span>
