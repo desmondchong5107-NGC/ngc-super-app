@@ -67,11 +67,8 @@
       margin: 0 auto;
       padding: max(30px, env(safe-area-inset-top)) 22px calc(118px + env(safe-area-inset-bottom));
       display: grid;
-      grid-template-rows: auto 1fr;
+      grid-template-rows: 1fr;
     }
-    .home-heading { padding:6px 4px 0; text-align:center; }
-    .home-heading strong { display:block; color:var(--navy); font-size:20px; line-height:1.1; letter-spacing:-.035em; }
-    .home-heading span { display:block; margin-top:4px; color:var(--muted); font-size:11px; font-weight:680; letter-spacing:.01em; }
     .brandbar {
       display:flex; align-items:center; justify-content:space-between; gap:20px; padding:10px 12px;
       border:1px solid rgba(255,255,255,.7); border-radius:22px;
@@ -118,8 +115,8 @@
     .notify-button:disabled { opacity:.55; cursor:wait; }
     .notify-button:focus-visible { outline:4px solid rgba(21,120,255,.22); outline-offset:2px; }
     .home-dock {
-      position:fixed; z-index:40; left:50%; bottom:max(10px,env(safe-area-inset-bottom)); width:min(calc(100% - 24px),420px); min-height:76px;
-      padding:7px 8px; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; transform:translateX(-50%);
+      position:fixed; z-index:70; left:50%; bottom:max(10px,env(safe-area-inset-bottom)); width:min(calc(100% - 24px),420px); min-height:76px;
+      padding:7px 8px; display:grid; grid-template-columns:minmax(0,1fr) 82px; gap:6px; transform:translateX(-50%);
       border:1px solid rgba(255,255,255,.84); border-radius:27px;
       background:linear-gradient(145deg,rgba(255,255,255,.76),rgba(239,248,255,.56));
       box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 18px 46px -18px rgba(7,38,73,.36);
@@ -130,7 +127,8 @@
       border:0; border-radius:20px; color:#657b93; background:transparent; text-decoration:none; cursor:pointer; font:inherit;
       transition:transform .18s cubic-bezier(.16,1,.3,1),color .18s ease,background .18s ease;
     }
-    .dock-item.active { color:#075fd7; background:linear-gradient(145deg,rgba(223,241,255,.88),rgba(255,255,255,.5)); box-shadow:inset 0 1px 0 rgba(255,255,255,.9); }
+    .dock-home-button { flex-direction:row; justify-content:flex-start; gap:11px; padding:6px 13px; color:#075fd7; background:linear-gradient(145deg,rgba(223,241,255,.88),rgba(255,255,255,.5)); box-shadow:inset 0 1px 0 rgba(255,255,255,.9); }
+    .dock-updates-button { padding-inline:8px; }
     .dock-item:active { transform:scale(.92); }
     .dock-item:focus-visible { outline:3px solid rgba(21,120,255,.22); outline-offset:-2px; }
     .dock-icon { position:relative; width:31px; height:31px; display:grid; place-items:center; }
@@ -139,9 +137,9 @@
     .dock-item.has-unread .dock-bell::after { content:""; position:absolute; right:1px; top:0; width:7px; height:7px; border-radius:50%; background:#ff3b30; border:1.5px solid white; }
     .dock-item.push-enabled .dock-bell { color:#087952; }
     .home-dock .notification-count { right:-9px; top:-7px; }
-    .dock-campaign { width:31px; height:31px; border-radius:10px; color:white; background:linear-gradient(145deg,#9a5d11,#efb64f); box-shadow:0 7px 14px -8px rgba(132,78,11,.68); overflow:hidden; }
-    .dock-campaign .campaign-symbol { transform:scale(.62); }
-    .home-dock .app-badge { top:-7px; right:-13px; }
+    .dock-brand-copy { min-width:0; display:grid; gap:2px; text-align:left; }
+    .dock-brand-copy strong { overflow:hidden; color:var(--navy); font-size:14px; line-height:1.1; letter-spacing:-.025em; white-space:nowrap; text-overflow:ellipsis; }
+    .dock-brand-copy small { color:#6b7f96; font-size:9px; font-weight:760; }
     .dock-label { max-width:100%; overflow:hidden; font-size:9.5px; line-height:1.1; font-weight:780; white-space:nowrap; text-overflow:ellipsis; }
     .sheet-backdrop {
       position:fixed; z-index:200; inset:0; display:flex; align-items:flex-end; justify-content:center;
@@ -265,8 +263,8 @@
     .detail-action.full { grid-column:1/-1; }
     .detail-action[hidden] { display:none; }
     .app-grid {
-      width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 42px; max-width: 360px; margin: 0 auto; align-self: center;
+      width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 36px; max-width: 500px; margin: 0 auto; align-self: center;
     }
     .app-card {
       appearance:none; width:100%; min-width:0; padding:8px 2px; text-align:center; cursor:pointer; text-decoration:none; font:inherit;
@@ -311,7 +309,7 @@
     @keyframes screenIn { from { opacity:0; transform:scale(.985) translateY(7px); } to { opacity:1; transform:none; } }
     .toolbar {
       position: relative; z-index: 10; min-height: calc(62px + env(safe-area-inset-top)); padding: calc(9px + env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) 9px max(14px, env(safe-area-inset-left));
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      display: flex; align-items: center; justify-content: center; gap: 12px;
       border-bottom:1px solid rgba(255,255,255,.78);
       background:linear-gradient(145deg,rgba(255,255,255,.72),rgba(255,255,255,.38));
       box-shadow:inset 0 1px 0 rgba(255,255,255,.96),0 12px 30px -18px rgba(11,50,92,.28);
@@ -325,10 +323,10 @@
     }
     .back:hover { background:rgba(255,255,255,.86); }
     .back:active { transform:scale(.95); }
-    .tool-title { min-width: 0; text-align: right; }
+    .tool-title { min-width:0; width:100%; text-align:center; }
     .tool-title strong { display: block; color: var(--navy); font-size: 14px; }
     .tool-title span { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
-    .frames { position:relative; min-height:0; overflow:hidden; }
+    .frames { position:relative; min-height:0; overflow:hidden; margin-bottom:calc(92px + env(safe-area-inset-bottom)); }
     iframe { display:none; position:absolute; inset:0; width:100%; height:100%; min-height:0; border:0; background:#eaf5ff; }
     iframe.active { display:block; }
     .epf-edge-gesture { display:none; position:absolute; z-index:4; inset:0 auto 0 0; width:30px; touch-action:pan-y; -webkit-tap-highlight-color:transparent; }
@@ -346,7 +344,7 @@
     .toast button { min-height:32px; padding:0 11px; border:0; border-radius:10px; color:#102a46; background:white; font:inherit; font-size:11px; font-weight:850; cursor:pointer; }
     @media (max-width: 650px) {
       .home-inner { padding-left: 16px; padding-right: 16px; }
-      .app-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:26px; max-width:280px; }
+      .app-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; max-width:350px; }
       .app-card { padding:8px 0; gap:12px; }
       .app-icon { width:76px; height:76px; border-radius:22px; }
       .app-card h2 { font-size:13px; line-height:1.2; }
@@ -373,11 +371,6 @@
 <body>
   <main id="home" class="home">
     <div class="home-inner">
-      <header class="home-heading">
-        <strong>NGC Super App</strong>
-        <span>Everyday tools, one simple home</span>
-      </header>
-
       <section class="app-grid" aria-label="Available calculators">
         <button class="app-card" type="button" data-open="epf" aria-label="Open EPF Eligibility Calculator">
           <span class="app-icon epf-icon" aria-hidden="true"><img src="epf-logo.png" alt=""></span>
@@ -389,34 +382,17 @@
           <h2>Commission</h2>
         </button>
 
-      </section>
-
-      <nav class="home-dock" aria-label="Main navigation">
-        <button class="dock-item active" type="button" aria-current="page" aria-label="Home">
-          <span class="dock-icon dock-home" aria-hidden="true"><img src="apple-touch-icon.png?v=3" alt="NGC"></span>
-          <span class="dock-label">Home</span>
-        </button>
-        <button id="notificationButton" class="dock-item" type="button" aria-label="Open Notification Centre" title="Notification Centre">
-          <span class="dock-icon dock-bell" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path></svg>
-            <span id="notificationCount" class="notification-count" hidden></span>
-          </span>
-          <span class="dock-label">Updates</span>
-        </button>
-        <a id="campaignCard" class="dock-item" href="https://hero88-tracker.vercel.app/view" target="_blank" rel="noopener noreferrer" aria-label="Open Campaign website">
-          <span class="dock-icon dock-campaign" aria-hidden="true">
-            <span id="campaignBadge" class="app-badge" hidden></span>
-            <span class="campaign-symbol"></span>
-          </span>
-          <span id="campaignLabel" class="dock-label">Campaign</span>
+        <a id="campaignCard" class="app-card" href="https://hero88-tracker.vercel.app/view" target="_blank" rel="noopener noreferrer" aria-label="Open Campaign website">
+          <span id="campaignBadge" class="app-badge" hidden></span>
+          <span class="app-icon campaign-icon" aria-hidden="true"><span class="campaign-symbol"></span></span>
+          <h2 id="campaignLabel">Campaign</h2>
         </a>
-      </nav>
+      </section>
     </div>
   </main>
 
   <section id="tool" class="tool" aria-label="Calculator">
     <div class="toolbar">
-      <button id="back" class="back" type="button" aria-label="Back to NGC Super App home"><span aria-hidden="true">←</span> Home</button>
       <div class="tool-title"><strong id="toolName">Calculator</strong><span>NGC Super App</span></div>
     </div>
     <div class="frames">
@@ -425,6 +401,20 @@
       <div id="epfEdgeGesture" class="epf-edge-gesture" aria-hidden="true"></div>
     </div>
   </section>
+
+  <nav class="home-dock" aria-label="Main navigation">
+    <button id="dockHomeButton" class="dock-item dock-home-button" type="button" aria-label="Go to NGC Super App Home">
+      <span class="dock-icon dock-home" aria-hidden="true"><img src="apple-touch-icon.png?v=3" alt="NGC"></span>
+      <span class="dock-brand-copy"><strong>NGC Super App</strong><small>Home</small></span>
+    </button>
+    <button id="notificationButton" class="dock-item dock-updates-button" type="button" aria-label="Open Notification Centre" title="Notification Centre">
+      <span class="dock-icon dock-bell" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path></svg>
+        <span id="notificationCount" class="notification-count" hidden></span>
+      </span>
+      <span class="dock-label">Updates</span>
+    </button>
+  </nav>
 
   <div id="notificationBackdrop" class="sheet-backdrop" hidden>
     <section class="notification-sheet" role="dialog" aria-modal="true" aria-labelledby="notificationTitle">
@@ -496,6 +486,7 @@
     const campaignCard = document.getElementById("campaignCard");
     const campaignLabel = document.getElementById("campaignLabel");
     const campaignBadge = document.getElementById("campaignBadge");
+    const dockHomeButton = document.getElementById("dockHomeButton");
     const notificationButton = document.getElementById("notificationButton");
     const notificationCount = document.getElementById("notificationCount");
     const notificationBackdrop = document.getElementById("notificationBackdrop");
@@ -563,6 +554,7 @@
     let notificationSearchValue = storageGet("ngcNotificationSearch", "");
     notificationSearch.value = notificationSearchValue;
     let selectedUpdate = null;
+    let notificationReturnApp = null;
     let readUpdateIds = new Set();
     try { readUpdateIds = new Set(JSON.parse(storageGet("ngcReadUpdates", "[]"))); } catch {}
     let archivedUpdateIds = new Set();
@@ -1103,12 +1095,12 @@
     }
 
     function openNotificationCentre(updateHash = true) {
-      if (tool.classList.contains("active")) showHome(false);
+      notificationReturnApp = tool.classList.contains("active") ? tool.dataset.activeApp : null;
       notificationDetail.hidden = true;
       selectedUpdate = null;
       notificationBackdrop.hidden = false;
       document.body.style.overflow = "hidden";
-      if (updateHash && location.hash !== "#notifications") history.pushState({ notifications:true }, "", "#notifications");
+      if (updateHash && location.hash !== "#notifications") history.pushState({ notifications:true, returnApp:notificationReturnApp }, "", "#notifications");
       renderUpdates();
       loadCampaignUpdates(true);
       setTimeout(() => document.getElementById("notificationClose").focus({ preventScroll:true }), 30);
@@ -1119,7 +1111,12 @@
       selectedUpdate = null;
       notificationBackdrop.hidden = true;
       document.body.style.overflow = "";
-      if (updateHash && location.hash === "#notifications") history.replaceState({}, "", location.pathname + location.search);
+      if (updateHash && location.hash === "#notifications") {
+        const returnHash = notificationReturnApp ? "#" + notificationReturnApp : location.pathname + location.search;
+        const returnState = notificationReturnApp ? { app:notificationReturnApp } : {};
+        history.replaceState(returnState, "", returnHash);
+      }
+      notificationReturnApp = null;
       notificationButton.focus({ preventScroll:true });
     }
 
@@ -1255,7 +1252,6 @@
       document.title = app.name + " · NGC Super App";
       if (updateHash) history.pushState({ app: id }, "", "#" + id);
       window.scrollTo(0, 0);
-      if (matchMedia("(pointer:fine)").matches) document.getElementById("back").focus({ preventScroll: true });
     }
 
     function showHome(updateHash = true) {
@@ -1274,6 +1270,7 @@
     document.querySelectorAll("[data-open]").forEach(button => {
       button.addEventListener("click", () => openApp(button.dataset.open));
     });
+    dockHomeButton.addEventListener("click", () => showHome());
     notificationButton.addEventListener("click", () => openNotificationCentre());
     pushToggle.addEventListener("click", toggleNotifications);
     refreshUpdates.addEventListener("click", () => loadCampaignUpdates(false));
@@ -1475,11 +1472,11 @@
     window.addEventListener("online", refreshUpdatesIfStale);
     window.addEventListener("pageshow", refreshUpdatesIfStale);
     document.addEventListener("visibilitychange", refreshUpdatesIfStale);
-    document.getElementById("back").addEventListener("click", () => showHome());
     window.addEventListener("popstate", () => {
       const id = location.hash.slice(1);
       if (id === "notifications") {
-        showHome(false);
+        const returnApp = history.state?.returnApp;
+        if (returnApp && apps[returnApp]) openApp(returnApp, false); else showHome(false);
         openNotificationCentre(false);
       } else {
         notificationDetail.hidden = true;
