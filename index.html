@@ -136,6 +136,27 @@
     .dock-bell svg { width:23px; height:23px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
     .dock-item.push-enabled .dock-bell { color:#087952; }
     .home-dock .notification-count { right:-11px; top:-8px; }
+    .dock-updates-button.attention { animation:updatesAttentionGlow 1.55s cubic-bezier(.16,1,.3,1) both; }
+    .dock-updates-button.attention .dock-bell { transform-origin:50% 12%; animation:notificationBellRing 1.05s ease-in-out .12s both; }
+    .dock-updates-button.attention .notification-count { animation:notificationBadgePop .58s cubic-bezier(.2,1.65,.35,1) both; }
+    @keyframes updatesAttentionGlow {
+      0%,100% { background:transparent; box-shadow:none; }
+      22% { background:rgba(218,238,255,.82); box-shadow:0 0 0 6px rgba(10,132,255,.1),0 9px 24px rgba(10,100,210,.15),inset 0 1px 0 rgba(255,255,255,.9); }
+      65% { background:rgba(235,246,255,.44); box-shadow:0 0 0 2px rgba(10,132,255,.035),0 5px 15px rgba(10,100,210,.06); }
+    }
+    @keyframes notificationBellRing {
+      0%,100% { transform:rotate(0); }
+      18% { transform:rotate(-10deg); }
+      34% { transform:rotate(9deg); }
+      50% { transform:rotate(-7deg); }
+      66% { transform:rotate(5deg); }
+      82% { transform:rotate(-2deg); }
+    }
+    @keyframes notificationBadgePop {
+      0% { opacity:.35; transform:scale(.48); }
+      58% { opacity:1; transform:scale(1.18); }
+      100% { opacity:1; transform:scale(1); }
+    }
     .dock-brand-copy { min-width:0; display:grid; gap:2px; text-align:left; }
     .dock-brand-copy strong { overflow:hidden; color:var(--navy); font-size:14px; line-height:1.1; letter-spacing:-.025em; white-space:nowrap; text-overflow:ellipsis; }
     .dock-brand-copy small { color:#6b7f96; font-size:9px; font-weight:760; }
@@ -370,7 +391,7 @@
       .brandbar,.toolbar,.back,.notify-button,.notification-sheet,.home-dock { background:#fff; backdrop-filter:none; -webkit-backdrop-filter:none; }
       .sheet-backdrop { backdrop-filter:none; -webkit-backdrop-filter:none; }
     }
-    @media (prefers-reduced-motion:reduce) { .app-card,.back,.update-card { transition:none; } .home::before,.home::after,.home:not([hidden]),.tool.active,.sheet-backdrop,.notification-sheet,.notification-detail-view,.refresh-updates { animation:none; } }
+    @media (prefers-reduced-motion:reduce) { .app-card,.back,.update-card { transition:none; } .home::before,.home::after,.home:not([hidden]),.tool.active,.sheet-backdrop,.notification-sheet,.notification-detail-view,.refresh-updates,.dock-updates-button.attention,.dock-updates-button.attention .dock-bell,.dock-updates-button.attention .notification-count { animation:none; } }
   </style>
 </head>
 <body>
@@ -521,11 +542,15 @@
     };
     let toastTimer;
     let remoteBadgeTimer;
+    let notificationAttentionTimer;
     let notificationBusy = false;
     let updatesLoading = false;
     let badgeSyncReady = false;
     let lastSuccessfulUpdateFetch = 0;
     let campaignUpdates = [];
+    let currentUnreadCount = 0;
+    let previousUnreadCount = -1;
+    let lastNotificationAttentionAt = 0;
     let pullRefreshHint = null;
     let pullStartY = 0;
     let pullStartX = 0;
@@ -735,6 +760,9 @@
     function refreshUnreadUI() {
       const activeUpdates = campaignUpdates.filter(update => !archivedUpdateIds.has(update.id));
       const unread = activeUpdates.filter(update => !readUpdateIds.has(update.id)).length;
+      const shouldAttractAttention = unread > 0 && (previousUnreadCount < 0 || unread > previousUnreadCount);
+      currentUnreadCount = unread;
+      previousUnreadCount = unread;
       notificationButton.classList.toggle("has-unread", unread > 0);
       notificationCount.textContent = unread > 9 ? "9+" : String(unread);
       notificationCount.hidden = unread === 0;
@@ -744,6 +772,31 @@
         : "No updates yet";
       markAllRead.hidden = unread === 0;
       updateFilterUI();
+      if (shouldAttractAttention) requestAnimationFrame(animateNotificationAttention);
+    }
+
+    function stopNotificationAttention() {
+      clearTimeout(notificationAttentionTimer);
+      notificationButton.classList.remove("attention");
+    }
+
+    function animateNotificationAttention() {
+      if (!currentUnreadCount || !notificationBackdrop.hidden || document.hidden) return;
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const now = Date.now();
+      if (now - lastNotificationAttentionAt < 5000) return;
+      lastNotificationAttentionAt = now;
+      stopNotificationAttention();
+      void notificationButton.offsetWidth;
+      notificationButton.classList.add("attention");
+      notificationAttentionTimer = setTimeout(() => notificationButton.classList.remove("attention"), 1650);
+    }
+
+    function handleAppForeground() {
+      refreshUpdatesIfStale();
+      if (!document.hidden && currentUnreadCount > 0 && Date.now() - lastNotificationAttentionAt > 60000) {
+        requestAnimationFrame(animateNotificationAttention);
+      }
     }
 
     function archiveUpdateWithUndo(update) {
@@ -1111,6 +1164,7 @@
     }
 
     function openNotificationCentre(updateHash = true) {
+      stopNotificationAttention();
       notificationReturnApp = tool.classList.contains("active") ? tool.dataset.activeApp : null;
       notificationDetail.hidden = true;
       selectedUpdate = null;
@@ -1288,7 +1342,10 @@
       button.addEventListener("click", () => openApp(button.dataset.open));
     });
     dockHomeButton.addEventListener("click", () => showHome());
-    notificationButton.addEventListener("click", () => openNotificationCentre());
+    notificationButton.addEventListener("click", () => {
+      stopNotificationAttention();
+      openNotificationCentre();
+    });
     pushToggle.addEventListener("click", toggleNotifications);
     refreshUpdates.addEventListener("click", () => loadCampaignUpdates(false));
     notificationFilters.addEventListener("click", event => {
@@ -1487,8 +1544,8 @@
     });
     window.addEventListener("offline", () => showToast("You are offline. Calculators still work."));
     window.addEventListener("online", refreshUpdatesIfStale);
-    window.addEventListener("pageshow", refreshUpdatesIfStale);
-    document.addEventListener("visibilitychange", refreshUpdatesIfStale);
+    window.addEventListener("pageshow", handleAppForeground);
+    document.addEventListener("visibilitychange", handleAppForeground);
     window.addEventListener("popstate", () => {
       const id = location.hash.slice(1);
       if (id === "notifications") {
