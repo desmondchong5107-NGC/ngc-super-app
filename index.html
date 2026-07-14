@@ -65,10 +65,13 @@
       width: min(100%, 980px);
       min-height: 100svh;
       margin: 0 auto;
-      padding: max(36px, env(safe-area-inset-top)) 22px max(42px, env(safe-area-inset-bottom));
+      padding: max(30px, env(safe-area-inset-top)) 22px calc(118px + env(safe-area-inset-bottom));
       display: grid;
       grid-template-rows: auto 1fr;
     }
+    .home-heading { padding:6px 4px 0; text-align:center; }
+    .home-heading strong { display:block; color:var(--navy); font-size:20px; line-height:1.1; letter-spacing:-.035em; }
+    .home-heading span { display:block; margin-top:4px; color:var(--muted); font-size:11px; font-weight:680; letter-spacing:.01em; }
     .brandbar {
       display:flex; align-items:center; justify-content:space-between; gap:20px; padding:10px 12px;
       border:1px solid rgba(255,255,255,.7); border-radius:22px;
@@ -114,6 +117,32 @@
     .notify-button:active { transform:scale(.93); }
     .notify-button:disabled { opacity:.55; cursor:wait; }
     .notify-button:focus-visible { outline:4px solid rgba(21,120,255,.22); outline-offset:2px; }
+    .home-dock {
+      position:fixed; z-index:40; left:50%; bottom:max(10px,env(safe-area-inset-bottom)); width:min(calc(100% - 24px),420px); min-height:76px;
+      padding:7px 8px; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; transform:translateX(-50%);
+      border:1px solid rgba(255,255,255,.84); border-radius:27px;
+      background:linear-gradient(145deg,rgba(255,255,255,.76),rgba(239,248,255,.56));
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 18px 46px -18px rgba(7,38,73,.36);
+      backdrop-filter:blur(34px) saturate(185%); -webkit-backdrop-filter:blur(34px) saturate(185%);
+    }
+    .dock-item {
+      appearance:none; position:relative; min-width:0; min-height:60px; padding:5px 4px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+      border:0; border-radius:20px; color:#657b93; background:transparent; text-decoration:none; cursor:pointer; font:inherit;
+      transition:transform .18s cubic-bezier(.16,1,.3,1),color .18s ease,background .18s ease;
+    }
+    .dock-item.active { color:#075fd7; background:linear-gradient(145deg,rgba(223,241,255,.88),rgba(255,255,255,.5)); box-shadow:inset 0 1px 0 rgba(255,255,255,.9); }
+    .dock-item:active { transform:scale(.92); }
+    .dock-item:focus-visible { outline:3px solid rgba(21,120,255,.22); outline-offset:-2px; }
+    .dock-icon { position:relative; width:31px; height:31px; display:grid; place-items:center; }
+    .dock-home img { width:31px; height:31px; display:block; border-radius:10px; object-fit:cover; box-shadow:0 6px 13px -7px rgba(7,49,91,.55); }
+    .dock-bell svg { width:23px; height:23px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+    .dock-item.has-unread .dock-bell::after { content:""; position:absolute; right:1px; top:0; width:7px; height:7px; border-radius:50%; background:#ff3b30; border:1.5px solid white; }
+    .dock-item.push-enabled .dock-bell { color:#087952; }
+    .home-dock .notification-count { right:-9px; top:-7px; }
+    .dock-campaign { width:31px; height:31px; border-radius:10px; color:white; background:linear-gradient(145deg,#9a5d11,#efb64f); box-shadow:0 7px 14px -8px rgba(132,78,11,.68); overflow:hidden; }
+    .dock-campaign .campaign-symbol { transform:scale(.62); }
+    .home-dock .app-badge { top:-7px; right:-13px; }
+    .dock-label { max-width:100%; overflow:hidden; font-size:9.5px; line-height:1.1; font-weight:780; white-space:nowrap; text-overflow:ellipsis; }
     .sheet-backdrop {
       position:fixed; z-index:200; inset:0; display:flex; align-items:flex-end; justify-content:center;
       padding:max(10px,env(safe-area-inset-top)) 8px max(8px,env(safe-area-inset-bottom));
@@ -236,8 +265,8 @@
     .detail-action.full { grid-column:1/-1; }
     .detail-action[hidden] { display:none; }
     .app-grid {
-      width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 32px; max-width: 500px; margin: 0 auto; align-self: center;
+      width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 42px; max-width: 360px; margin: 0 auto; align-self: center;
     }
     .app-card {
       appearance:none; width:100%; min-width:0; padding:8px 2px; text-align:center; cursor:pointer; text-decoration:none; font:inherit;
@@ -317,7 +346,7 @@
     .toast button { min-height:32px; padding:0 11px; border:0; border-radius:10px; color:#102a46; background:white; font:inherit; font-size:11px; font-weight:850; cursor:pointer; }
     @media (max-width: 650px) {
       .home-inner { padding-left: 16px; padding-right: 16px; }
-      .app-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; max-width:350px; }
+      .app-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:26px; max-width:280px; }
       .app-card { padding:8px 0; gap:12px; }
       .app-icon { width:76px; height:76px; border-radius:22px; }
       .app-card h2 { font-size:13px; line-height:1.2; }
@@ -331,11 +360,11 @@
       .update-copy strong { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     }
     @media (prefers-contrast:more) {
-      .brandbar,.toolbar,.back,.notify-button { border-color:rgba(7,28,54,.28); }
+      .brandbar,.toolbar,.back,.notify-button,.home-dock { border-color:rgba(7,28,54,.28); }
       .app-card h2,.tool-title strong,.back { color:#00152d; }
     }
     @media (prefers-reduced-transparency:reduce) {
-      .brandbar,.toolbar,.back,.notify-button,.notification-sheet { background:#fff; backdrop-filter:none; -webkit-backdrop-filter:none; }
+      .brandbar,.toolbar,.back,.notify-button,.notification-sheet,.home-dock { background:#fff; backdrop-filter:none; -webkit-backdrop-filter:none; }
       .sheet-backdrop { backdrop-filter:none; -webkit-backdrop-filter:none; }
     }
     @media (prefers-reduced-motion:reduce) { .app-card,.back,.update-card { transition:none; } .home::before,.home::after,.home:not([hidden]),.tool.active,.sheet-backdrop,.notification-sheet,.notification-detail-view,.refresh-updates { animation:none; } }
@@ -344,18 +373,10 @@
 <body>
   <main id="home" class="home">
     <div class="home-inner">
-      <div class="brandbar">
-        <div class="brand">
-          <div class="brand-mark"><img src="apple-touch-icon.png?v=3" alt="NGC"></div>
-          <div class="brand-copy"><strong>NGC Super App</strong><span>Everyday tools, all in one place</span></div>
-        </div>
-        <div class="brand-actions">
-          <button id="notificationButton" class="notify-button" type="button" aria-label="Open Notification Centre" title="Notification Centre">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path></svg>
-            <span id="notificationCount" class="notification-count" hidden></span>
-          </button>
-        </div>
-      </div>
+      <header class="home-heading">
+        <strong>NGC Super App</strong>
+        <span>Everyday tools, one simple home</span>
+      </header>
 
       <section class="app-grid" aria-label="Available calculators">
         <button class="app-card" type="button" data-open="epf" aria-label="Open EPF Eligibility Calculator">
@@ -368,13 +389,28 @@
           <h2>Commission</h2>
         </button>
 
-        <a id="campaignCard" class="app-card" href="https://hero88-tracker.vercel.app/view" target="_blank" rel="noopener noreferrer" aria-label="Open Campaign website">
-          <span id="campaignBadge" class="app-badge" hidden></span>
-          <span class="app-icon campaign-icon" aria-hidden="true"><span class="campaign-symbol"></span></span>
-          <h2 id="campaignLabel">Campaign</h2>
-        </a>
       </section>
 
+      <nav class="home-dock" aria-label="Main navigation">
+        <button class="dock-item active" type="button" aria-current="page" aria-label="Home">
+          <span class="dock-icon dock-home" aria-hidden="true"><img src="apple-touch-icon.png?v=3" alt="NGC"></span>
+          <span class="dock-label">Home</span>
+        </button>
+        <button id="notificationButton" class="dock-item" type="button" aria-label="Open Notification Centre" title="Notification Centre">
+          <span class="dock-icon dock-bell" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path></svg>
+            <span id="notificationCount" class="notification-count" hidden></span>
+          </span>
+          <span class="dock-label">Updates</span>
+        </button>
+        <a id="campaignCard" class="dock-item" href="https://hero88-tracker.vercel.app/view" target="_blank" rel="noopener noreferrer" aria-label="Open Campaign website">
+          <span class="dock-icon dock-campaign" aria-hidden="true">
+            <span id="campaignBadge" class="app-badge" hidden></span>
+            <span class="campaign-symbol"></span>
+          </span>
+          <span id="campaignLabel" class="dock-label">Campaign</span>
+        </a>
+      </nav>
     </div>
   </main>
 
@@ -1107,7 +1143,7 @@
     }
 
     function setNotificationUI(active) {
-      notificationButton.classList.toggle("active", active);
+      notificationButton.classList.toggle("push-enabled", active);
       notificationButton.setAttribute("aria-label", "Open Notification Centre" + (active ? ", push notifications on" : ""));
       notificationButton.title = "Notification Centre";
       pushToggle.classList.toggle("active", active);
