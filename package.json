@@ -1,0 +1,15 @@
+{
+  "name": "ngc-super-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node work/build_ngc_super_app.mjs",
+    "vercel-build": "npm run preflight",
+    "verify": "node work/verify_ngc_super_app.mjs",
+    "preflight": "node work/preflight_release.mjs"
+  },
+  "devDependencies": {
+    "lucide-static": "^1.26.0",
+    "qrcode-generator": "2.0.4"
+  }
+}

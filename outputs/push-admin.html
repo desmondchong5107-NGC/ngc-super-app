@@ -1,0 +1,1387 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <title>NGC Super App Admin</title>
+  <style>
+    :root { font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif; color:#10223a; background:#e8f4ff; --blue:#1578ff; --navy:#071c36; --muted:#62748a; --line:rgba(17,54,93,.13); }
+    * { box-sizing:border-box; }
+    body { min-height:100svh; margin:0; padding:max(24px,env(safe-area-inset-top)) 14px max(32px,env(safe-area-inset-bottom)); background:radial-gradient(circle at 88% 2%,rgba(68,214,209,.3),transparent 34%),radial-gradient(circle at 0 70%,rgba(21,120,255,.22),transparent 38%),linear-gradient(155deg,#f8fcff,#e8f4ff 55%,#f8fbfe); }
+    main { width:min(100%,720px); margin:auto; display:grid; gap:14px; }
+    .glass { padding:20px; border:1px solid rgba(255,255,255,.92); border-radius:26px; background:rgba(255,255,255,.72); box-shadow:inset 0 1px 0 white,0 22px 50px -28px rgba(7,28,54,.32); backdrop-filter:blur(28px) saturate(170%); -webkit-backdrop-filter:blur(28px) saturate(170%); }
+    header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .brand { display:flex; align-items:center; gap:13px; }
+    header img { width:52px; height:52px; padding:7px; border-radius:17px; background:linear-gradient(145deg,#0b315c,#1578ff); box-shadow:0 12px 25px rgba(15,78,150,.24); }
+    h1 { font-size:22px; letter-spacing:-.035em; margin:0; }
+    header p,.hint { color:var(--muted); font-size:12px; margin:3px 0 0; line-height:1.45; }
+    .back { min-height:42px; padding:0 13px; display:inline-flex; align-items:center; border:1px solid var(--line); border-radius:14px; color:#0b5ed7; background:rgba(255,255,255,.68); text-decoration:none; font-size:13px; font-weight:750; }
+    .mode-switch { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; padding:4px; margin-top:18px; border:1px solid var(--line); border-radius:17px; background:rgba(7,28,54,.055); }
+    .mode-switch button { min-height:44px; padding:0 8px; border-radius:13px; color:var(--muted); background:transparent; box-shadow:none; font-size:12px; }
+    .mode-switch button.active { color:white; background:linear-gradient(145deg,#0b5ed7,#1578ff); box-shadow:0 8px 18px rgba(21,120,255,.2); }
+    .admin-switch { display:grid; grid-template-columns:1fr 1fr; gap:5px; padding:5px; margin-top:18px; border:1px solid rgba(21,120,255,.16); border-radius:19px; background:linear-gradient(145deg,rgba(21,120,255,.07),rgba(116,98,230,.07)); }
+    .admin-switch button { min-height:48px; padding:0 10px; color:#526981; border-radius:14px; background:transparent; box-shadow:none; font-size:13px; }
+    .admin-switch button.active { color:white; background:linear-gradient(145deg,#075fd7,#1578ff 55%,#6762e7); box-shadow:0 10px 22px -12px rgba(21,120,255,.65); }
+    h2 { margin:0 0 5px; font-size:17px; letter-spacing:-.02em; }
+    label { display:block; margin:14px 2px 7px; color:var(--muted); font-size:10px; font-weight:850; letter-spacing:.09em; text-transform:uppercase; }
+    input,textarea,select { width:100%; min-height:48px; padding:12px 13px; border:1px solid var(--line); border-radius:15px; background:rgba(255,255,255,.78); color:#10223a; font:inherit; font-size:16px; outline:0; box-shadow:inset 0 1px 0 white; }
+    textarea { min-height:130px; resize:vertical; line-height:1.5; }
+    input:focus,textarea:focus,select:focus { border-color:rgba(21,120,255,.55); box-shadow:0 0 0 3px rgba(21,120,255,.11); }
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:11px; }
+    .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-top:14px; }
+    .metric { padding:13px; border:1px solid rgba(255,255,255,.88); border-radius:17px; background:rgba(255,255,255,.56); }
+    .metric span { display:block; color:var(--muted); font-size:10px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
+    .metric strong { display:block; margin-top:5px; color:var(--navy); font-size:18px; letter-spacing:-.03em; }
+    button { min-height:50px; padding:0 16px; border:0; border-radius:16px; color:white; background:linear-gradient(145deg,#0b5ed7,#1578ff); font:inherit; font-weight:800; box-shadow:0 12px 26px rgba(21,120,255,.23); cursor:pointer; }
+    button.secondary { color:var(--navy); background:rgba(255,255,255,.76); border:1px solid var(--line); box-shadow:none; }
+    button.share { background:linear-gradient(145deg,#087853,#22b77f); }
+    button.test { background:linear-gradient(145deg,#8d5512,#e6a73c); }
+    button:active { transform:scale(.98); }
+    button:disabled { opacity:.5; cursor:wait; }
+    .load { width:100%; margin-top:13px; }
+    .actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px; }
+    .actions.three { grid-template-columns:repeat(3,1fr); }
+    .share-full { width:100%; margin-top:10px; }
+    .movement-list { display:grid; gap:9px; margin-top:12px; }
+    .movement { padding:12px; border:1px solid rgba(255,255,255,.9); border-radius:18px; background:rgba(255,255,255,.53); }
+    .movement-head { display:flex; justify-content:space-between; gap:10px; align-items:center; }
+    .movement-head strong { font-size:14px; }
+    .movement-head span { color:#087952; font-size:13px; font-weight:800; }
+    .movement-fields { display:grid; grid-template-columns:1.5fr .75fr .75fr; gap:8px; }
+    .movement input { min-height:42px; padding:9px 10px; font-size:14px; }
+    .status { min-height:20px; margin:13px 2px 0; color:var(--muted); font-size:13px; text-align:center; }
+    .status.success { color:#087952; }
+    .status.error { color:#c5324d; }
+    .preview { white-space:pre-wrap; word-break:break-word; min-height:160px; padding:16px; margin-top:12px; border:1px solid rgba(255,255,255,.94); border-radius:18px; background:rgba(255,255,255,.64); font-size:14px; line-height:1.55; }
+    .option-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+    .option-card { min-height:72px; margin:0; padding:12px 13px; display:flex; align-items:center; gap:11px; border:1px solid var(--line); border-radius:17px; color:var(--navy); background:rgba(255,255,255,.62); font-size:13px; font-weight:800; letter-spacing:0; text-transform:none; }
+    .option-card input { width:22px; min-height:22px; height:22px; margin:0; accent-color:var(--blue); box-shadow:none; }
+    .option-card small { display:block; margin-top:2px; color:var(--muted); font-size:10px; font-weight:650; line-height:1.35; }
+    .option-field { padding:10px 12px 12px; border:1px solid var(--line); border-radius:17px; background:rgba(255,255,255,.62); }
+    .option-field label { margin-top:0; }
+    .option-field input { min-height:42px; padding:8px 10px; font-size:13px; }
+    .draft-actions { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:12px; }
+    .draft-actions button { min-height:44px; }
+    .phone-preview { margin-top:14px; padding:16px; overflow:hidden; border-radius:24px; background:linear-gradient(145deg,#173052,#6787ad); box-shadow:inset 0 1px 0 rgba(255,255,255,.24); }
+    .phone-preview-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; color:white; font-size:11px; font-weight:800; }
+    .push-card { padding:12px; display:grid; grid-template-columns:38px minmax(0,1fr) auto; gap:10px; align-items:start; border:1px solid rgba(255,255,255,.7); border-radius:18px; background:rgba(248,251,255,.88); box-shadow:0 10px 28px rgba(3,18,38,.2); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); }
+    .push-card img { width:38px; height:38px; padding:5px; border-radius:10px; background:linear-gradient(145deg,#0b315c,#1578ff); }
+    .push-copy { min-width:0; }
+    .push-copy small { display:block; overflow:hidden; color:#52657d; font-size:9px; font-weight:850; text-overflow:ellipsis; white-space:nowrap; text-transform:uppercase; }
+    .push-copy strong { display:block; margin-top:2px; overflow:hidden; color:var(--navy); font-size:13px; line-height:1.25; text-overflow:ellipsis; white-space:nowrap; }
+    .push-copy span { display:-webkit-box; margin-top:3px; overflow:hidden; color:#53657a; font-size:11px; line-height:1.35; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
+    .push-time { color:#6c7c8e; font-size:9px; white-space:nowrap; }
+    .history-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+    .history-head button { min-height:42px; padding:0 13px; }
+    .history-list { display:grid; gap:9px; margin-top:13px; }
+    .history-item { padding:13px; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; border:1px solid rgba(255,255,255,.9); border-radius:18px; background:rgba(255,255,255,.58); }
+    .history-item strong { display:block; color:var(--navy); font-size:14px; }
+    .history-item span { display:block; margin-top:4px; color:var(--muted); font-size:11px; line-height:1.45; }
+    .history-item button { min-height:38px; padding:0 11px; align-self:center; color:#b3263f; border:1px solid rgba(179,38,63,.16); background:rgba(255,255,255,.72); box-shadow:none; font-size:11px; }
+    .history-empty { padding:22px; color:var(--muted); text-align:center; font-size:13px; }
+    .history-title { margin:18px 2px 8px; color:var(--muted); font-size:10px; font-weight:850; letter-spacing:.09em; text-transform:uppercase; }
+    .history-item.failed { border-color:rgba(197,50,77,.2); }
+    .device-row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; align-items:end; }
+    .device-row button { min-height:48px; white-space:nowrap; }
+    .upload-drop { padding:16px; margin-top:14px; border:1.5px dashed rgba(21,120,255,.3); border-radius:20px; background:linear-gradient(145deg,rgba(232,244,255,.74),rgba(239,236,255,.68)); }
+    .upload-drop input[type="file"] { padding:10px; background:rgba(255,255,255,.76); }
+    .material-admin-list { display:grid; gap:11px; margin-top:14px; }
+    .admin-material { padding:13px; display:grid; grid-template-columns:92px minmax(0,1fr); gap:12px; border:1px solid rgba(255,255,255,.92); border-radius:20px; background:rgba(255,255,255,.58); }
+    .admin-material-cover { width:92px; aspect-ratio:1; display:grid; place-items:center; overflow:hidden; border-radius:16px; background:linear-gradient(145deg,#e5e3ff,#d9f6f3); }
+    .admin-material-cover img { width:100%; height:100%; object-fit:cover; }
+    .admin-pdf { width:48px; height:58px; display:grid; place-items:center; color:white; border-radius:10px; background:linear-gradient(145deg,#d82f4b,#ff6d75); font-size:12px; font-weight:900; }
+    .admin-material-fields { min-width:0; }
+    .admin-material-fields label { margin-top:9px; }
+    .admin-material-fields input,.admin-material-fields textarea,.admin-material-fields select { min-height:42px; padding:9px 10px; font-size:13px; }
+    .admin-material-fields textarea { min-height:78px; }
+    .material-flags { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+    .material-flags label { min-height:44px; margin:0; padding:8px 10px; display:flex; align-items:center; gap:8px; color:var(--navy); border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.64); font-size:11px; letter-spacing:0; text-transform:none; }
+    .material-flags input { width:19px; min-height:19px; height:19px; padding:0; box-shadow:none; accent-color:var(--blue); }
+    .material-admin-actions { display:grid; grid-template-columns:1fr auto; gap:8px; margin-top:11px; }
+    .material-admin-actions button { min-height:42px; padding:0 13px; font-size:12px; }
+    .material-admin-actions .delete-material { color:#b3263f; border:1px solid rgba(179,38,63,.16); background:rgba(255,255,255,.76); box-shadow:none; }
+    .hidden { display:none !important; }
+    @media (max-width:560px) { .glass{padding:17px}.grid3,.option-grid,.actions.three{grid-template-columns:1fr}.actions{grid-template-columns:1fr}.movement-fields{grid-template-columns:1fr 1fr}.movement-fields input:first-child{grid-column:1/-1}header{align-items:flex-start}.back{font-size:0}.back::after{content:"← App";font-size:13px}.push-card{grid-template-columns:36px minmax(0,1fr) auto}.history-head{display:block}.history-head button{width:100%;margin-top:12px}.device-row{grid-template-columns:1fr}.device-row button{width:100%}.admin-material{grid-template-columns:1fr}.admin-material-cover{width:100%;aspect-ratio:16/8}.material-admin-actions{grid-template-columns:1fr}.material-admin-actions button{width:100%} }
+    @media (prefers-reduced-transparency:reduce) { .glass { background:#fff; backdrop-filter:none; -webkit-backdrop-filter:none; } }
+
+    /* Minimal Push Admin shell */
+    :root {
+      color:#081a35;
+      background:#fff;
+      --blue:#0b6ffb;
+      --navy:#081a35;
+      --muted:#718096;
+      --line:#dce3ec;
+      --soft:#f4f6f9;
+    }
+    body {
+      padding:max(24px,env(safe-area-inset-top)) 20px max(48px,env(safe-area-inset-bottom));
+      background:#fff;
+      -webkit-text-size-adjust:100%;
+    }
+    main { width:min(100%,680px); gap:0; }
+    main > *,header,.brand,.push-copy,.admin-material-fields { min-width:0; }
+    .glass {
+      padding:28px 0;
+      border:0;
+      border-bottom:1px solid #e7ebf0;
+      border-radius:0;
+      background:#fff;
+      box-shadow:none;
+      backdrop-filter:none;
+      -webkit-backdrop-filter:none;
+    }
+    .shell-header { padding-top:4px; padding-bottom:22px; border-bottom:0; }
+    header { align-items:center; }
+    .brand { gap:14px; }
+    header img {
+      width:56px;
+      height:56px;
+      padding:0;
+      border-radius:17px;
+      background:#0b6ffb;
+      box-shadow:none;
+    }
+    h1 { font-size:30px; line-height:1.08; letter-spacing:-.045em; }
+    header p { display:none; }
+    .back {
+      min-height:44px;
+      min-width:44px;
+      padding:0;
+      justify-content:center;
+      border:0;
+      border-radius:0;
+      color:var(--blue);
+      background:transparent;
+      font-size:15px;
+      font-weight:800;
+    }
+    .admin-switch,.mode-switch { display:none !important; }
+    .workspace-picker { margin-top:34px; }
+    .workspace-picker label { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+    .workspace-picker select {
+      min-height:58px;
+      padding:0 18px;
+      border:1px solid #d6dee8;
+      border-radius:18px;
+      color:var(--navy);
+      background:#fff;
+      font-size:17px;
+      font-weight:800;
+      box-shadow:none;
+    }
+    h2 { margin:0 0 8px; font-size:22px; line-height:1.25; letter-spacing:-.035em; }
+    .hint { max-width:60ch; margin-top:0; font-size:14px; line-height:1.55; }
+    label { margin:20px 0 8px; color:var(--navy); font-size:14px; font-weight:800; letter-spacing:0; text-transform:none; }
+    input,textarea,select {
+      min-height:54px;
+      padding:14px 16px;
+      border:1px solid #d6dee8;
+      border-radius:17px;
+      background:#fff;
+      color:var(--navy);
+      font-size:16px;
+      box-shadow:none;
+    }
+    button,input,textarea,select { touch-action:manipulation; }
+    .hint,.status,.history-item span,.push-copy span { overflow-wrap:anywhere; }
+    textarea { min-height:150px; }
+    input::placeholder,textarea::placeholder { color:#8996a8; }
+    input:focus,textarea:focus,select:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(11,111,251,.1); }
+    button {
+      min-height:54px;
+      border-radius:17px;
+      background:var(--blue);
+      box-shadow:none;
+      font-size:16px;
+    }
+    button.secondary,button.test,button.share {
+      color:var(--blue);
+      border:1px solid #cfd9e6;
+      background:#fff;
+      box-shadow:none;
+    }
+    .load { margin-top:18px; }
+    .grid2 { gap:12px; }
+    .grid3 { gap:1px; overflow:hidden; border:1px solid var(--line); border-radius:17px; background:var(--line); }
+    .metric { padding:15px; border:0; border-radius:0; background:#fff; }
+    .metric span { font-size:10px; }
+    .metric strong { font-size:17px; }
+    .movement-list { gap:0; border-top:1px solid #e7ebf0; }
+    .movement { padding:18px 0; border:0; border-bottom:1px solid #e7ebf0; border-radius:0; background:#fff; }
+    .option-grid { gap:12px; }
+    .option-card,.option-field { border:1px solid var(--line); border-radius:17px; background:#fff; }
+    .phone-preview {
+      margin-top:24px;
+      padding:0;
+      overflow:visible;
+      border-radius:0;
+      background:#fff;
+      box-shadow:none;
+    }
+    .phone-preview-top { margin-bottom:9px; color:var(--navy); font-size:14px; }
+    .phone-preview-top span:last-child { display:none; }
+    .push-card {
+      min-height:92px;
+      padding:15px;
+      border:0;
+      border-radius:20px;
+      background:#f1f3f6;
+      box-shadow:none;
+      backdrop-filter:none;
+      -webkit-backdrop-filter:none;
+    }
+    .push-card img { padding:0; border-radius:12px; background:#0b6ffb; }
+    .push-copy strong { font-size:14px; }
+    .push-copy span { font-size:12px; }
+    .actions { gap:10px; }
+    .actions.three { grid-template-columns:1fr 1fr 1fr; }
+    .status { margin-top:14px; font-size:14px; }
+    .upload-drop { border-color:#b8c8dc; border-radius:18px; background:#f7f9fb; }
+    .upload-drop input[type="file"] { max-width:100%; }
+    .admin-material { border:0; border-bottom:1px solid #e7ebf0; border-radius:0; background:#fff; }
+    .history-item { border:0; border-bottom:1px solid #e7ebf0; border-radius:0; background:#fff; }
+    .history-empty { border:1px solid var(--line); border-radius:17px; background:#fafbfc; }
+    .more-options-wrap { display:flex; justify-content:center; padding:20px 0 8px; }
+    .more-options-toggle {
+      min-height:44px;
+      padding:0 14px;
+      border:0;
+      border-radius:12px;
+      color:var(--blue);
+      background:transparent;
+      box-shadow:none;
+      font-size:15px;
+    }
+    body.more-closed .advanced-field,
+    body.more-closed .utility-panel { display:none !important; }
+    body.campaign-ready.more-closed .campaign-setup { display:none !important; }
+    body.more-closed .actions.three { grid-template-columns:1fr; }
+    body.more-closed .actions.three button:not(:first-child),
+    body.more-closed .share-full { display:none; }
+    body:not(.more-closed) .more-options-toggle { color:var(--muted); }
+    body:not(.more-closed) .more-options-toggle::after { content:""; }
+    @media (min-width:700px) {
+      body { padding-left:28px; padding-right:28px; }
+      .shell-header { padding-top:14px; }
+    }
+    @media (max-width:560px) {
+      body {
+        padding-left:max(20px,env(safe-area-inset-left));
+        padding-right:max(20px,env(safe-area-inset-right));
+      }
+      .glass { padding:24px 0; }
+      header { align-items:center; }
+      header img { width:52px; height:52px; border-radius:15px; }
+      h1 { font-size:27px; }
+      .back { font-size:0; }
+      .back::after { content:"Back"; font-size:15px; }
+      .workspace-picker { margin-top:30px; }
+      .grid2,.grid3,.option-grid,.actions,.actions.three { grid-template-columns:1fr; }
+      .metric { padding:14px 15px; }
+      .movement-fields { grid-template-columns:1fr; }
+      .movement-fields input:first-child { grid-column:auto; }
+      .phone-preview { margin-top:22px; }
+      .push-card { grid-template-columns:42px minmax(0,1fr) auto; gap:11px; }
+      .push-card img { width:42px; height:42px; }
+      .history-head { display:block; }
+      .history-head button { width:100%; min-height:48px; margin-top:12px; }
+      .history-item { grid-template-columns:1fr; }
+      .history-item button { width:100%; min-height:48px; }
+      .movement input,
+      .option-field input,
+      .admin-material-fields input,
+      .admin-material-fields select { min-height:48px; }
+      .device-row,.admin-material,.material-admin-actions { grid-template-columns:1fr; }
+      .device-row button,.material-admin-actions button { width:100%; }
+      .material-admin-actions button { min-height:48px; }
+      .admin-material-cover { width:100%; aspect-ratio:16/8; }
+    }
+    @media (max-width:350px) {
+      .push-card { grid-template-columns:38px minmax(0,1fr); gap:10px; }
+      .push-card img { width:38px; height:38px; }
+      .push-time { display:none; }
+      .material-flags { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body class="more-closed">
+  <main>
+    <section class="glass shell-header">
+      <header>
+        <div class="brand"><img src="ngc-logo.png" alt="NGC"><div><h1>Push Admin</h1><p>Notifications · Presentation Kit</p></div></div>
+        <a class="back" href="./index.html">Back</a>
+      </header>
+      <div class="admin-switch" role="tablist" aria-label="Admin section">
+        <button id="notificationsAdminTab" class="active" type="button" role="tab" aria-selected="true">Notifications</button>
+        <button id="materialsAdminTab" type="button" role="tab" aria-selected="false">Presentation Kit</button>
+      </div>
+      <div id="notificationModeSwitch" class="mode-switch" role="tablist" aria-label="Notification type">
+        <button id="campaignTab" class="active" type="button" role="tab" aria-selected="true">Campaign Update</button>
+        <button id="generalTab" type="button" role="tab" aria-selected="false">General Info</button>
+        <button id="keyDatesTab" type="button" role="tab" aria-selected="false">Key Dates</button>
+      </div>
+      <div class="workspace-picker">
+        <label for="workspaceSelector">Admin workspace</label>
+        <select id="workspaceSelector">
+          <option value="campaign">Campaign Update</option>
+          <option value="general">General Info</option>
+          <option value="keydates">Key Dates</option>
+          <option value="materials">Presentation Kit</option>
+        </select>
+      </div>
+    </section>
+
+    <section id="keyDatesSection" class="glass notification-admin-panel hidden" data-mode="keydates">
+      <h2>Key Dates Automation</h2>
+      <p class="hint">These messages are sent automatically at 9:00 AM Malaysia time. Use placeholders: {month}, {cutoff_month}, {payment_month}, {cutoff_sequence}, {payment_sequence}.</p>
+      <div class="option-field">
+        <label for="cutoffTemplateTitle">Cut-Off Title</label><input id="cutoffTemplateTitle" maxlength="80" value="Cut-Off Today">
+        <label for="cutoffTemplateMessage">Cut-Off Message</label><textarea id="cutoffTemplateMessage" maxlength="220">{month} Sequence {cutoff_sequence} cut-off is today. Please submit before the official cut-off time.</textarea>
+      </div>
+      <div class="option-field" style="margin-top:10px">
+        <label for="commissionTemplateTitle">Commission Title</label><input id="commissionTemplateTitle" maxlength="80" value="💰 Ka-Ching!">
+        <label for="commissionTemplateMessage">Commission Message</label><textarea id="commissionTemplateMessage" maxlength="220">Commission payment for {month} Sequence {payment_sequence} is scheduled for today! 🎉</textarea>
+      </div>
+      <div class="option-field" style="margin-top:10px">
+        <label for="combinedTemplateTitle">Combined Title</label><input id="combinedTemplateTitle" maxlength="80" value="💰 Ka-Ching! + Cut-Off Today">
+        <label for="combinedTemplateMessage">Combined Message</label><textarea id="combinedTemplateMessage" maxlength="220">Payment: {payment_month} Sequence {payment_sequence} 🎉 · Cut-Off: {cutoff_month} Sequence {cutoff_sequence} 📌</textarea>
+      </div>
+      <label for="keyDateToken">Private Admin Key</label><input id="keyDateToken" type="password" autocomplete="current-password" placeholder="Paste your private admin key">
+      <div class="actions"><button id="loadKeyDateTemplates" class="secondary" type="button">Load Templates</button><button id="saveKeyDateTemplates" type="button">Save Templates</button></div>
+      <p id="keyDateTemplateStatus" class="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="glass notification-admin-panel utility-panel">
+      <h2>Test Device</h2>
+      <p class="hint">Register this iPhone once, then preview a real push here before sending it to everyone. On iPhone, open this page from the installed NGC Super App.</p>
+      <div class="device-row">
+        <div><label for="deviceToken">Private Admin Key</label><input id="deviceToken" type="password" autocomplete="current-password" placeholder="Paste your private admin key"></div>
+        <button id="registerTestDevice" class="test" type="button">Use This iPhone</button>
+      </div>
+      <p id="deviceStatus" class="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="glass notification-admin-panel campaign-setup" data-mode="campaign">
+      <h2>Campaign Update</h2>
+      <p class="hint">Automatically reads sales, cases and Agent movement from the HERO 88 tracker. Default: last completed Monday–Sunday.</p>
+      <div class="grid2">
+        <div><label for="startDate">Start Date</label><input id="startDate" type="date"></div>
+        <div><label for="endDate">End Date</label><input id="endDate" type="date"></div>
+      </div>
+      <button id="load" class="load" type="button">Load Weekly Results</button>
+      <p id="loadStatus" class="status" role="status" aria-live="polite"></p>
+      <div id="metrics" class="grid3 hidden">
+        <div class="metric"><span>Previous Total</span><strong id="previousTotal">RM --</strong></div>
+        <div class="metric"><span>This Week</span><strong id="newAmount">+RM --</strong></div>
+        <div class="metric"><span>Current Total</span><strong id="currentTotal">RM --</strong></div>
+      </div>
+    </section>
+
+    <section id="editSection" class="glass notification-admin-panel campaign-setup hidden" data-mode="campaign">
+      <h2>Confirm case types</h2>
+      <p class="hint">The tracker does not store Submission / Referral yet. Adjust the split below before generating.</p>
+      <div class="grid2">
+        <div><label for="submissions">Total Submissions</label><input id="submissions" type="number" min="0" step="1"></div>
+        <div><label for="referrals">Total Referrals</label><input id="referrals" type="number" min="0" step="1" value="0"></div>
+      </div>
+      <div id="movements" class="movement-list"></div>
+      <label for="manualNotes">Manual Team Notes (one line each)</label>
+      <textarea id="manualNotes" placeholder="Kalim 兄弟 — Exam passed. Waiting 🚀."></textarea>
+      <button id="generate" class="load" type="button">Generate Weekly Summary</button>
+    </section>
+
+    <section id="publishSection" class="glass notification-admin-panel hidden" data-mode="campaign">
+      <h2>Campaign Update</h2>
+      <label for="title">Title</label><input id="title" maxlength="80" placeholder="Enter a title…">
+      <label for="summary">Message</label><textarea id="summary" maxlength="220" placeholder="Write your push message…"></textarea>
+      <label class="advanced-field" for="body">Full Update</label><textarea class="advanced-field" id="body" style="min-height:360px"></textarea>
+      <label class="advanced-field" for="targetUrl">Latest Ranking Link</label><input class="advanced-field" id="targetUrl" type="url">
+      <div class="option-grid advanced-field">
+        <label class="option-card" for="campaignPinned"><input id="campaignPinned" type="checkbox"><span>Pin notification<small>Keep it above newer notifications.</small></span></label>
+        <div class="option-field"><label for="campaignExpiresAt">Automatically hide after</label><input id="campaignExpiresAt" type="datetime-local"></div>
+      </div>
+      <div class="phone-preview" aria-label="iPhone notification preview">
+        <div class="phone-preview-top"><span>iPhone Preview</span><span>now</span></div>
+        <div class="push-card"><img src="ngc-logo.png" alt=""><div class="push-copy"><small id="campaignPreviewCategory">NGC Super App</small><strong id="campaignPreviewTitle">Campaign Update</strong><span id="campaignPreviewSummary">Your push preview will appear here.</span></div><span class="push-time">now</span></div>
+      </div>
+      <div class="draft-actions advanced-field"><button id="saveCampaignDraft" class="secondary" type="button">Save Draft</button><button id="clearCampaignDraft" class="secondary" type="button">Clear Draft</button></div>
+      <label class="advanced-field" for="campaignScheduleAt">Schedule Date & Time</label><input class="advanced-field" id="campaignScheduleAt" type="datetime-local">
+      <label class="advanced-field" for="token">Private Admin Key</label><input class="advanced-field" id="token" type="password" autocomplete="current-password" placeholder="Paste your private admin key">
+      <div class="actions three"><button id="publish" type="button">Publish</button><button id="scheduleCampaign" class="secondary" type="button">Schedule</button><button id="testCampaign" class="test" type="button">Send Test</button></div>
+      <button id="share" class="share share-full" type="button">Share to WhatsApp</button>
+      <p id="publishStatus" class="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section id="generalSection" class="glass notification-admin-panel hidden" data-mode="general">
+      <h2>General Info</h2>
+      <p class="hint">For announcements, meetings, reminders, training, events or any information not related to a campaign report.</p>
+      <label class="advanced-field" for="generalCategory">Category</label>
+      <select class="advanced-field" id="generalCategory">
+        <option>General Info</option>
+        <option>Important Notice</option>
+        <option>Reminder</option>
+        <option>Event</option>
+        <option>Training</option>
+      </select>
+      <label for="generalTitle">Title</label>
+      <input id="generalTitle" maxlength="80" placeholder="Example: Monday Team Meeting">
+      <label for="generalSummary">Message</label>
+      <textarea id="generalSummary" maxlength="220" placeholder="A short message users can understand from the lock screen."></textarea>
+      <label class="advanced-field" for="generalBody">Full Information</label>
+      <textarea class="advanced-field" id="generalBody" style="min-height:260px" placeholder="Add the complete details, date, time, venue and anything the team needs to prepare."></textarea>
+      <label class="advanced-field" for="generalUrl">Optional Link</label>
+      <input class="advanced-field" id="generalUrl" type="url" inputmode="url" placeholder="https://">
+      <div class="option-grid advanced-field">
+        <label class="option-card" for="generalPinned"><input id="generalPinned" type="checkbox"><span>Pin notification<small>Keep important information at the top.</small></span></label>
+        <div class="option-field"><label for="generalExpiresAt">Automatically hide after</label><input id="generalExpiresAt" type="datetime-local"></div>
+      </div>
+      <div class="phone-preview" aria-label="iPhone notification preview">
+        <div class="phone-preview-top"><span>iPhone Preview</span><span>now</span></div>
+        <div class="push-card"><img src="ngc-logo.png" alt=""><div class="push-copy"><small id="generalPreviewCategory">GENERAL INFO</small><strong id="generalPreviewTitle">Notification Title</strong><span id="generalPreviewSummary">Your push preview will appear here.</span></div><span class="push-time">now</span></div>
+      </div>
+      <div class="draft-actions advanced-field"><button id="saveGeneralDraft" class="secondary" type="button">Save Draft</button><button id="clearGeneralDraft" class="secondary" type="button">Clear Draft</button></div>
+      <label class="advanced-field" for="generalScheduleAt">Schedule Date & Time</label><input class="advanced-field" id="generalScheduleAt" type="datetime-local">
+      <label class="advanced-field" for="generalToken">Private Admin Key</label>
+      <input class="advanced-field" id="generalToken" type="password" autocomplete="current-password" placeholder="Paste your private admin key">
+      <div class="actions three"><button id="generalPublish" type="button">Publish</button><button id="scheduleGeneral" class="secondary" type="button">Schedule</button><button id="testGeneral" class="test" type="button">Send Test</button></div>
+      <button id="generalShare" class="share share-full" type="button">Share to WhatsApp</button>
+      <p id="generalStatus" class="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <div class="more-options-wrap"><button id="moreOptionsButton" class="more-options-toggle" type="button" aria-expanded="false">More options</button></div>
+
+    <section class="glass notification-admin-panel utility-panel">
+      <div class="history-head"><div><h2>Recent Notifications</h2><p class="hint">Review delivery results or remove an update from the App. Removing it cannot retract a push already delivered.</p></div><button id="loadHistory" class="secondary" type="button">Load History</button></div>
+      <label for="historyToken">Private Admin Key</label>
+      <input id="historyToken" type="password" autocomplete="current-password" placeholder="Paste your private admin key">
+      <p id="historyStatus" class="status" role="status" aria-live="polite"></p>
+      <div id="historyMetrics" class="grid3 hidden"><div class="metric"><span>Subscribed</span><strong id="metricSubscribers">0</strong></div><div class="metric"><span>Test Devices</span><strong id="metricTestDevices">0</strong></div><div class="metric"><span>Scheduled</span><strong id="metricScheduled">0</strong></div></div>
+      <div class="history-title">Scheduled & Pending</div>
+      <div id="scheduledList" class="history-list"><div class="history-empty">No scheduled notifications loaded.</div></div>
+      <div class="history-title">Published & Analytics</div>
+      <div id="historyList" class="history-list"><div class="history-empty">Enter your Admin Key and load the latest notifications.</div></div>
+    </section>
+
+    <section class="glass materials-admin-panel hidden">
+      <h2>Upload Presentation Material</h2>
+      <p class="hint">Upload an approved customer-facing image or PDF. Published items appear in the Agent App immediately.</p>
+      <div class="upload-drop">
+        <label for="materialFile">Image or PDF · max 20 MB</label>
+        <input id="materialFile" type="file" accept="application/pdf,image/jpeg,image/png,image/webp">
+      </div>
+      <label for="materialTitle">Title</label><input id="materialTitle" maxlength="120" placeholder="Example: EPF Investment Overview">
+      <label for="materialDescription">Short Description</label><textarea id="materialDescription" maxlength="500" placeholder="What should the Agent use this material for?"></textarea>
+      <div class="grid2">
+        <div><label for="materialCategory">Category</label><select id="materialCategory"><option>Company Profile</option><option>EPF &amp; Investment</option><option>Fund &amp; Product</option><option>Campaign</option><option>Forms &amp; Guides</option><option>Latest Updates</option></select></div>
+        <div><label for="materialSortOrder">Display Order</label><input id="materialSortOrder" type="number" min="0" max="9999" value="100"></div>
+      </div>
+      <label for="materialExpiresAt">Automatically Hide After (optional)</label><input id="materialExpiresAt" type="datetime-local">
+      <div class="material-flags"><label><input id="materialPublished" type="checkbox" checked> Published</label><label><input id="materialNew" type="checkbox" checked> Show NEW badge</label></div>
+      <label for="materialsToken">Private Admin Key</label><input id="materialsToken" type="password" autocomplete="current-password" placeholder="Paste your private admin key">
+      <button id="uploadMaterial" class="load" type="button">Upload &amp; Publish</button>
+      <p id="materialUploadStatus" class="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="glass materials-admin-panel hidden">
+      <div class="history-head"><div><h2>Presentation Library</h2><p class="hint">Edit titles, order and visibility, or permanently remove outdated files.</p></div><button id="loadMaterialsAdmin" class="secondary" type="button">Load Library</button></div>
+      <p id="materialsAdminStatus" class="status" role="status" aria-live="polite"></p>
+      <div id="materialsAdminList" class="material-admin-list"><div class="history-empty">Enter your Admin Key and load the library.</div></div>
+    </section>
+  </main>
+
+  <script>
+    const PUSH_API = "https://bzqgademvvtbpthqoxoj.supabase.co/functions/v1/push-api";
+    const SUMMARY_API = "https://ejhwbovqtcujjwvjniyt.supabase.co/functions/v1/campaign-summary";
+    const PUSH_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6cWdhZGVtdnZ0YnB0aHFveG9qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MTY5NTQsImV4cCI6MjA5OTQ5Mjk1NH0.dN9pXoMyVL0cflWtpXWO1ukgaVDS-fy8dpcBV_9BHuo";
+    const SUMMARY_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqaHdib3ZxdGN1amp3dmpuaXl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU1MDYyMjksImV4cCI6MjA4MTA4MjIyOX0.GBf7fuVOE9m3jCcPGSaMWrfWyaRG6Bo3p5kb8wE6ZFo";
+    const $ = id => document.getElementById(id);
+    const DRAFT_KEY = "ngcNotificationAdminDraftV3";
+    let report = null;
+    let draftTimer = 0;
+    let currentNotificationMode = "campaign";
+    let currentAdminArea = "notifications";
+    let materialsAdminLoaded = false;
+
+    function setMoreOptions(open, focusId = "") {
+      document.body.classList.toggle("more-closed", !open);
+      $("moreOptionsButton").textContent = open ? "Fewer options" : "More options";
+      $("moreOptionsButton").setAttribute("aria-expanded", String(open));
+      if (open && focusId) requestAnimationFrame(() => $(focusId)?.focus());
+    }
+
+    function expiryIso(id) {
+      const value = $(id).value;
+      if (!value) return null;
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? null : date.toISOString();
+    }
+
+    function updatePreviews() {
+      $("campaignPreviewCategory").textContent = ($("campaignPinned").checked ? "PINNED · " : "") + (report?.campaignTitle || "Campaign");
+      $("campaignPreviewTitle").textContent = $("title").value.trim() || "Campaign Update";
+      $("campaignPreviewSummary").textContent = $("summary").value.trim() || "Your push preview will appear here.";
+      $("generalPreviewCategory").textContent = ($("generalPinned").checked ? "PINNED · " : "") + $("generalCategory").value;
+      $("generalPreviewTitle").textContent = $("generalTitle").value.trim() || "Notification Title";
+      $("generalPreviewSummary").textContent = $("generalSummary").value.trim() || "Your push preview will appear here.";
+    }
+
+    function draftSnapshot() {
+      return {
+        report,
+        movementDraft: report ? movementRows() : [],
+        fields: {
+          startDate: $("startDate").value,
+          endDate: $("endDate").value,
+          submissions: $("submissions").value,
+          referrals: $("referrals").value,
+          manualNotes: $("manualNotes").value,
+          title: $("title").value,
+          summary: $("summary").value,
+          body: $("body").value,
+          targetUrl: $("targetUrl").value,
+          campaignPinned: $("campaignPinned").checked,
+          campaignExpiresAt: $("campaignExpiresAt").value,
+          campaignScheduleAt: $("campaignScheduleAt").value,
+          generalCategory: $("generalCategory").value,
+          generalTitle: $("generalTitle").value,
+          generalSummary: $("generalSummary").value,
+          generalBody: $("generalBody").value,
+          generalUrl: $("generalUrl").value,
+          generalPinned: $("generalPinned").checked,
+          generalExpiresAt: $("generalExpiresAt").value,
+          generalScheduleAt: $("generalScheduleAt").value
+        },
+        savedAt: new Date().toISOString()
+      };
+    }
+
+    function saveDraft(mode, announce = true) {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(draftSnapshot()));
+        if (announce) setStatus(mode === "general" ? "generalStatus" : "publishStatus", "Draft saved on this device.", "success");
+      } catch {
+        if (announce) setStatus(mode === "general" ? "generalStatus" : "publishStatus", "Draft could not be saved.", "error");
+      }
+    }
+
+    function scheduleDraftSave() {
+      clearTimeout(draftTimer);
+      draftTimer = setTimeout(() => saveDraft("campaign", false), 350);
+      updatePreviews();
+    }
+
+    function clearDraft(mode) {
+      localStorage.removeItem(DRAFT_KEY);
+      if (mode === "general") {
+        ["generalTitle","generalSummary","generalBody","generalUrl","generalExpiresAt","generalScheduleAt"].forEach(id => $(id).value = "");
+        $("generalPinned").checked = false;
+        setStatus("generalStatus", "General Info draft cleared.", "success");
+      } else {
+        ["title","summary","body","targetUrl","campaignExpiresAt","campaignScheduleAt"].forEach(id => $(id).value = "");
+        $("campaignPinned").checked = false;
+        $("publishSection").classList.add("hidden");
+        document.body.classList.remove("campaign-ready");
+        setStatus("loadStatus", "Campaign draft cleared.", "success");
+      }
+      updatePreviews();
+    }
+
+    function restoreDraft() {
+      try {
+        const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+        if (!draft?.fields) return;
+        const fields = draft.fields;
+        Object.entries(fields).forEach(([id, value]) => {
+          const element = $(id);
+          if (!element) return;
+          if (element.type === "checkbox") element.checked = Boolean(value);
+          else element.value = value == null ? "" : String(value);
+        });
+        if (draft.report && typeof draft.report === "object") {
+          report = draft.report;
+          $("previousTotal").textContent = money(report.previousTotal);
+          $("newAmount").textContent = "+" + money(report.newAmount);
+          $("currentTotal").textContent = money(report.currentTotal);
+          $("metrics").classList.remove("hidden");
+          $("editSection").classList.remove("hidden");
+          renderMovements();
+          (draft.movementDraft || []).forEach((item, index) => {
+            const row = document.querySelector('.movement[data-index="' + index + '"]');
+            if (!row) return;
+            row.querySelector(".agent-name").value = item.displayName || "";
+            row.querySelector(".agent-submissions").value = String(item.submissions || 0);
+            row.querySelector(".agent-referrals").value = String(item.referrals || 0);
+          });
+        }
+        if ($("body").value.trim()) {
+          $("publishSection").classList.remove("hidden");
+          document.body.classList.add("campaign-ready");
+        }
+        updatePreviews();
+      } catch {
+        localStorage.removeItem(DRAFT_KEY);
+      }
+    }
+
+    function syncAdminTokens(value) {
+      ["token","generalToken","historyToken","deviceToken","keyDateToken","materialsToken"].forEach(id => {
+        if ($(id).value !== value) $(id).value = value;
+      });
+      try { sessionStorage.setItem("ngcAdminKey", value); } catch {}
+    }
+
+    async function adminRequest(payload) {
+      const response = await fetch(PUSH_API, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json", "apikey":PUSH_KEY, "Authorization":"Bearer " + PUSH_KEY },
+        body:JSON.stringify(payload)
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Request failed");
+      return result;
+    }
+
+    const MATERIAL_CATEGORIES = ["Company Profile","EPF & Investment","Fund & Product","Campaign","Forms & Guides","Latest Updates"];
+    function materialExpiry(value) {
+      if (!value) return null;
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? null : date.toISOString();
+    }
+    function localDateTime(value) {
+      if (!value) return "";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "";
+      const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+      return local.toISOString().slice(0,16);
+    }
+    function materialSelect(value) {
+      const select = document.createElement("select");
+      MATERIAL_CATEGORIES.forEach(category => {
+        const option = document.createElement("option");
+        option.textContent = category;
+        option.value = category;
+        option.selected = category === value;
+        select.appendChild(option);
+      });
+      return select;
+    }
+    function fieldLabel(text, control) {
+      const label = document.createElement("label");
+      label.textContent = text;
+      label.appendChild(control);
+      return label;
+    }
+    function renderMaterialsAdmin(materials) {
+      const list = $("materialsAdminList");
+      list.textContent = "";
+      if (!materials.length) {
+        const empty = document.createElement("div");
+        empty.className = "history-empty";
+        empty.textContent = "No presentation materials uploaded yet.";
+        list.appendChild(empty);
+        return;
+      }
+      materials.forEach(material => {
+        const item = document.createElement("article");
+        item.className = "admin-material";
+        const cover = document.createElement("div");
+        cover.className = "admin-material-cover";
+        if (material.fileType === "image") {
+          const image = document.createElement("img");
+          image.src = material.url;
+          image.alt = "";
+          image.loading = "lazy";
+          cover.appendChild(image);
+        } else {
+          const pdf = document.createElement("span");
+          pdf.className = "admin-pdf";
+          pdf.textContent = "PDF";
+          cover.appendChild(pdf);
+        }
+        const fields = document.createElement("div");
+        fields.className = "admin-material-fields";
+        const title = document.createElement("input");
+        title.value = material.title || "";
+        title.maxLength = 120;
+        const description = document.createElement("textarea");
+        description.value = material.description || "";
+        description.maxLength = 500;
+        const category = materialSelect(material.category);
+        const order = document.createElement("input");
+        order.type = "number";
+        order.min = "0";
+        order.max = "9999";
+        order.value = String(material.sort_order ?? 100);
+        const expires = document.createElement("input");
+        expires.type = "datetime-local";
+        expires.value = localDateTime(material.expires_at);
+        const flags = document.createElement("div");
+        flags.className = "material-flags";
+        const published = document.createElement("input");
+        published.type = "checkbox";
+        published.checked = Boolean(material.is_published);
+        const isNew = document.createElement("input");
+        isNew.type = "checkbox";
+        isNew.checked = Boolean(material.is_new);
+        flags.append(fieldLabel("Published",published),fieldLabel("Show NEW",isNew));
+        const actions = document.createElement("div");
+        actions.className = "material-admin-actions";
+        const save = document.createElement("button");
+        save.type = "button";
+        save.textContent = "Save Changes";
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.className = "delete-material";
+        remove.textContent = "Delete";
+        actions.append(save,remove);
+        fields.append(fieldLabel("Title",title),fieldLabel("Description",description),fieldLabel("Category",category),fieldLabel("Display Order",order),fieldLabel("Hide After",expires),flags,actions);
+        item.append(cover,fields);
+        save.addEventListener("click",async () => {
+          const token = $("materialsToken").value.trim();
+          if (!token) return setStatus("materialsAdminStatus","Enter your private admin key.","error");
+          save.disabled = true;
+          try {
+            await adminRequest({action:"saveMaterial",adminToken:token,id:material.id,title:title.value,description:description.value,category:category.value,sortOrder:order.value,expiresAt:materialExpiry(expires.value),isPublished:published.checked,isNew:isNew.checked});
+            setStatus("materialsAdminStatus","Material saved.","success");
+            await loadMaterialsAdmin();
+          } catch (error) {
+            setStatus("materialsAdminStatus",error.message === "Unauthorized" ? "Admin key is incorrect." : (error.message || "Could not save material."),"error");
+            save.disabled = false;
+          }
+        });
+        remove.addEventListener("click",async () => {
+          const token = $("materialsToken").value.trim();
+          if (!token) return setStatus("materialsAdminStatus","Enter your private admin key.","error");
+          if (!confirm("Permanently delete this material and file?")) return;
+          remove.disabled = true;
+          try {
+            await adminRequest({action:"deleteMaterial",adminToken:token,id:material.id});
+            setStatus("materialsAdminStatus","Material deleted.","success");
+            await loadMaterialsAdmin();
+          } catch (error) {
+            setStatus("materialsAdminStatus",error.message === "Unauthorized" ? "Admin key is incorrect." : (error.message || "Could not delete material."),"error");
+            remove.disabled = false;
+          }
+        });
+        list.appendChild(item);
+      });
+    }
+    async function loadMaterialsAdmin() {
+      const token = $("materialsToken").value.trim();
+      if (!token) return setStatus("materialsAdminStatus","Enter your private admin key.","error");
+      $("loadMaterialsAdmin").disabled = true;
+      setStatus("materialsAdminStatus","Loading library…");
+      try {
+        const result = await adminRequest({action:"adminListMaterials",adminToken:token});
+        renderMaterialsAdmin(Array.isArray(result.materials) ? result.materials : []);
+        materialsAdminLoaded = true;
+        setStatus("materialsAdminStatus","Library loaded.","success");
+      } catch (error) {
+        setStatus("materialsAdminStatus",error.message === "Unauthorized" ? "Admin key is incorrect." : (error.message || "Could not load library."),"error");
+      } finally { $("loadMaterialsAdmin").disabled = false; }
+    }
+    async function uploadMaterial() {
+      const token = $("materialsToken").value.trim();
+      const file = $("materialFile").files?.[0];
+      if (!token) return setStatus("materialUploadStatus","Enter your private admin key.","error");
+      if (!file) return setStatus("materialUploadStatus","Choose an image or PDF.","error");
+      if (!$("materialTitle").value.trim()) return setStatus("materialUploadStatus","Enter a title.","error");
+      const form = new FormData();
+      form.append("action","uploadMaterial");
+      form.append("adminToken",token);
+      form.append("file",file);
+      form.append("title",$("materialTitle").value.trim());
+      form.append("description",$("materialDescription").value.trim());
+      form.append("category",$("materialCategory").value);
+      form.append("sortOrder",$("materialSortOrder").value);
+      form.append("expiresAt",materialExpiry($("materialExpiresAt").value) || "");
+      form.append("isPublished",String($("materialPublished").checked));
+      form.append("isNew",String($("materialNew").checked));
+      $("uploadMaterial").disabled = true;
+      setStatus("materialUploadStatus","Uploading… Please keep this page open.");
+      try {
+        const response = await fetch(PUSH_API,{method:"POST",headers:{apikey:PUSH_KEY,Authorization:"Bearer " + PUSH_KEY},body:form});
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Upload failed");
+        $("materialFile").value = "";
+        $("materialTitle").value = "";
+        $("materialDescription").value = "";
+        $("materialExpiresAt").value = "";
+        setStatus("materialUploadStatus","Uploaded. It is now available in Presentation Kit.","success");
+        await loadMaterialsAdmin();
+      } catch (error) {
+        setStatus("materialUploadStatus",error.message === "Unauthorized" ? "Admin key is incorrect." : (error.message || "Could not upload material."),"error");
+      } finally { $("uploadMaterial").disabled = false; }
+    }
+
+    function applicationServerKey(value) {
+      const padding = "=".repeat((4 - value.length % 4) % 4);
+      const base64 = (value + padding).replace(/-/g, "+").replace(/_/g, "/");
+      const raw = atob(base64);
+      return Uint8Array.from([...raw].map(character => character.charCodeAt(0)));
+    }
+
+    async function registerThisTestDevice() {
+      const token = $("deviceToken").value.trim();
+      if (!token) return setStatus("deviceStatus", "Enter your private admin key.", "error");
+      if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) return setStatus("deviceStatus", "Push notifications are not supported here.", "error");
+      $("registerTestDevice").disabled = true;
+      setStatus("deviceStatus", "Registering this device…");
+      try {
+        const permission = Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
+        if (permission !== "granted") throw new Error("Notification permission was not allowed.");
+        const configResponse = await fetch(PUSH_API, { headers:{ "apikey":PUSH_KEY, "Authorization":"Bearer " + PUSH_KEY } });
+        const config = await configResponse.json();
+        if (!configResponse.ok || !config.vapidPublicKey) throw new Error("Push configuration is unavailable.");
+        const registration = await navigator.serviceWorker.register("service-worker.js");
+        await navigator.serviceWorker.ready;
+        let subscription = await registration.pushManager.getSubscription();
+        if (!subscription) subscription = await registration.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey:applicationServerKey(config.vapidPublicKey) });
+        const result = await adminRequest({ action:"registerTestDevice", adminToken:token, subscription:subscription.toJSON() });
+        setStatus("deviceStatus", "This device is ready for test pushes. " + result.testDevices + " test device(s) registered.", "success");
+      } catch (error) {
+        setStatus("deviceStatus", error.message || "Could not register this device.", "error");
+      } finally {
+        $("registerTestDevice").disabled = false;
+      }
+    }
+
+    function historyDate(value) {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? "" : date.toLocaleString("en-MY", { dateStyle:"medium", timeStyle:"short" });
+    }
+
+    function renderHistory(updates, analytics = {}) {
+      $("historyList").textContent = "";
+      if (!updates.length) {
+        const empty = document.createElement("div");
+        empty.className = "history-empty";
+        empty.textContent = "No notifications have been published yet.";
+        $("historyList").appendChild(empty);
+        return;
+      }
+      updates.forEach(update => {
+        const item = document.createElement("article");
+        item.className = "history-item";
+        const copy = document.createElement("div");
+        const title = document.createElement("strong");
+        title.textContent = (update.payload?.pinned ? "📌 " : "") + update.title;
+        const meta = document.createElement("span");
+        const delivery = update.payload?.delivery;
+        const engagement = analytics[update.id] || { opened:0, linkClicked:0 };
+        const expires = update.payload?.expiresAt ? " · hides " + historyDate(update.payload.expiresAt) : "";
+        meta.textContent = update.campaign_title + " · " + historyDate(update.published_at) + (delivery ? " · delivered " + delivery.sent + "/" + delivery.total : "") + " · opened " + engagement.opened + " · link " + engagement.linkClicked + expires;
+        copy.append(title, meta);
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.dataset.deleteId = update.id;
+        remove.textContent = "Remove";
+        item.append(copy, remove);
+        $("historyList").appendChild(item);
+      });
+    }
+
+    function renderScheduled(items) {
+      $("scheduledList").textContent = "";
+      if (!items.length) {
+        const empty = document.createElement("div");
+        empty.className = "history-empty";
+        empty.textContent = "No scheduled notifications.";
+        $("scheduledList").appendChild(empty);
+        return;
+      }
+      items.forEach(item => {
+        const row = document.createElement("article");
+        row.className = "history-item" + (item.status === "failed" ? " failed" : "");
+        const copy = document.createElement("div");
+        const title = document.createElement("strong");
+        title.textContent = item.title;
+        const meta = document.createElement("span");
+        meta.textContent = item.campaign_title + " · " + item.status + " · " + historyDate(item.scheduled_at) + (item.error_message ? " · " + item.error_message : "");
+        copy.append(title, meta);
+        const cancel = document.createElement("button");
+        cancel.type = "button";
+        cancel.dataset.cancelSchedule = item.id;
+        cancel.textContent = item.status === "scheduled" ? "Cancel" : "Locked";
+        cancel.disabled = item.status !== "scheduled";
+        row.append(copy, cancel);
+        $("scheduledList").appendChild(row);
+      });
+    }
+
+    async function loadHistory() {
+      const token = $("historyToken").value.trim();
+      if (!token) return setStatus("historyStatus", "Enter your private admin key.", "error");
+      $("loadHistory").disabled = true;
+      setStatus("historyStatus", "Loading recent notifications…");
+      try {
+        const result = await adminRequest({ action:"history", adminToken:token });
+        renderHistory(result.updates || [], result.analytics || {});
+        renderScheduled(result.scheduled || []);
+        $("metricSubscribers").textContent = String(result.subscribers || 0);
+        $("metricTestDevices").textContent = String(result.testDevices || 0);
+        $("metricScheduled").textContent = String((result.scheduled || []).filter(item => item.status === "scheduled").length);
+        $("historyMetrics").classList.remove("hidden");
+        setStatus("historyStatus", "Delivery and anonymous engagement analytics updated.", "success");
+      } catch (error) {
+        setStatus("historyStatus", error.message === "Unauthorized" ? "Admin key is incorrect." : (error.message || "Could not load history."), "error");
+      } finally {
+        $("loadHistory").disabled = false;
+      }
+    }
+
+    function keyDateTemplatePayload() {
+      return {
+        cutoff:{ title:$("cutoffTemplateTitle").value, message:$("cutoffTemplateMessage").value },
+        commission:{ title:$("commissionTemplateTitle").value, message:$("commissionTemplateMessage").value },
+        combined:{ title:$("combinedTemplateTitle").value, message:$("combinedTemplateMessage").value }
+      };
+    }
+
+    function fillKeyDateTemplates(templates) {
+      for (const key of ["cutoff","commission","combined"]) {
+        const prefix = key === "cutoff" ? "cutoff" : key === "commission" ? "commission" : "combined";
+        $(prefix + "TemplateTitle").value = templates?.[key]?.title || "";
+        $(prefix + "TemplateMessage").value = templates?.[key]?.message || "";
+      }
+    }
+
+    async function loadKeyDateTemplates() {
+      const token = $("keyDateToken").value.trim();
+      if (!token) return setStatus("keyDateTemplateStatus", "Enter your private admin key.", "error");
+      $("loadKeyDateTemplates").disabled = true;
+      try {
+        const result = await adminRequest({ action:"getKeyDateSettings", adminToken:token });
+        fillKeyDateTemplates(result.templates || {});
+        setStatus("keyDateTemplateStatus", "Key Date templates loaded.", "success");
+      } catch (error) {
+        setStatus("keyDateTemplateStatus", error.message === "Unauthorized" ? "Admin key is incorrect." : (error.message || "Could not load templates."), "error");
+      } finally { $("loadKeyDateTemplates").disabled = false; }
+    }
+
+    async function saveKeyDateTemplates() {
+      const token = $("keyDateToken").value.trim();
+      if (!token) return setStatus("keyDateTemplateStatus", "Enter your private admin key.", "error");
+      $("saveKeyDateTemplates").disabled = true;
+      try {
+        const result = await adminRequest({ action:"saveKeyDateSettings", adminToken:token, templates:keyDateTemplatePayload() });
+        fillKeyDateTemplates(result.templates || {});
+        setStatus("keyDateTemplateStatus", "Saved. Future automatic reminders will use this wording.", "success");
+      } catch (error) {
+        setStatus("keyDateTemplateStatus", error.message === "Unauthorized" ? "Admin key is incorrect." : (error.message || "Could not save templates."), "error");
+      } finally { $("saveKeyDateTemplates").disabled = false; }
+    }
+
+    function switchMode(mode) {
+      currentNotificationMode = mode;
+      const campaign = mode === "campaign";
+      const general = mode === "general";
+      const keydates = mode === "keydates";
+      document.querySelectorAll('[data-mode="campaign"]').forEach(section => {
+        let hidden = !campaign;
+        if (campaign && section.id === "editSection") hidden = !report;
+        if (campaign && section.id === "publishSection") hidden = !$("body").value.trim();
+        section.classList.toggle("hidden", hidden);
+      });
+      $("generalSection").classList.toggle("hidden", !general);
+      $("keyDatesSection").classList.toggle("hidden", !keydates);
+      $("campaignTab").classList.toggle("active", campaign);
+      $("generalTab").classList.toggle("active", general);
+      $("keyDatesTab").classList.toggle("active", keydates);
+      $("campaignTab").setAttribute("aria-selected", String(campaign));
+      $("generalTab").setAttribute("aria-selected", String(general));
+      $("keyDatesTab").setAttribute("aria-selected", String(keydates));
+      if (currentAdminArea !== "materials") $("workspaceSelector").value = mode;
+    }
+
+    function switchAdminArea(area) {
+      const materials = area === "materials";
+      currentAdminArea = materials ? "materials" : "notifications";
+      $("notificationsAdminTab").classList.toggle("active", !materials);
+      $("materialsAdminTab").classList.toggle("active", materials);
+      $("notificationsAdminTab").setAttribute("aria-selected", String(!materials));
+      $("materialsAdminTab").setAttribute("aria-selected", String(materials));
+      $("notificationModeSwitch").classList.toggle("hidden", materials);
+      document.querySelectorAll(".materials-admin-panel").forEach(section => section.classList.toggle("hidden", !materials));
+      if (materials) {
+        $("workspaceSelector").value = "materials";
+        $("moreOptionsButton").parentElement.classList.add("hidden");
+        document.querySelectorAll(".notification-admin-panel").forEach(section => section.classList.add("hidden"));
+        if (!materialsAdminLoaded && $("materialsToken").value.trim()) loadMaterialsAdmin();
+      } else {
+        $("workspaceSelector").value = currentNotificationMode;
+        $("moreOptionsButton").parentElement.classList.remove("hidden");
+        document.querySelectorAll(".notification-admin-panel:not([data-mode])").forEach(section => section.classList.remove("hidden"));
+        switchMode(currentNotificationMode);
+      }
+    }
+
+    function isoDate(date) { return date.toISOString().slice(0, 10); }
+    function setDefaultWeek() {
+      const now = new Date();
+      now.setHours(12, 0, 0, 0);
+      const mondayOffset = (now.getDay() + 6) % 7;
+      const monday = new Date(now);
+      monday.setDate(monday.getDate() - mondayOffset);
+      const start = new Date(monday);
+      start.setDate(start.getDate() - 7);
+      const end = new Date(monday);
+      end.setDate(end.getDate() - 1);
+      $("startDate").value = isoDate(start);
+      $("endDate").value = isoDate(end);
+    }
+    function money(value) {
+      return "RM" + Number(value || 0).toLocaleString("en-MY", { minimumFractionDigits:2, maximumFractionDigits:2 });
+    }
+    function setStatus(id, text, kind) {
+      const el = $(id);
+      el.textContent = text;
+      el.className = "status" + (kind ? " " + kind : "");
+    }
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, character => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" })[character]);
+    }
+    function movementRows() {
+      return Array.from(document.querySelectorAll(".movement")).map((row, index) => ({
+        displayName: row.querySelector(".agent-name").value.trim() || report.movements[index].displayName,
+        amount: report.movements[index].amount,
+        cases: report.movements[index].cases,
+        submissions: Math.max(0, Number(row.querySelector(".agent-submissions").value) || 0),
+        referrals: Math.max(0, Number(row.querySelector(".agent-referrals").value) || 0)
+      }));
+    }
+    function renderMovements() {
+      $("movements").textContent = "";
+      report.movements.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.className = "movement";
+        row.innerHTML = '<div class="movement-head"><strong>' + escapeHtml(item.displayName) + '</strong><span>+' + money(item.amount) + ' · ' + item.cases + ' case(s)</span></div>' +
+          '<div class="movement-fields">' +
+          '<div><label>Display Name</label><input class="agent-name" value="' + escapeHtml(item.displayName) + '"></div>' +
+          '<div><label>Submissions</label><input class="agent-submissions" type="number" min="0" value="' + item.cases + '"></div>' +
+          '<div><label>Referrals</label><input class="agent-referrals" type="number" min="0" value="0"></div>' +
+          '</div>';
+        row.dataset.index = String(index);
+        $("movements").appendChild(row);
+      });
+    }
+    async function loadResults() {
+      const start = $("startDate").value;
+      const end = $("endDate").value;
+      if (!start || !end || start > end) return setStatus("loadStatus", "Choose a valid date range.", "error");
+      $("load").disabled = true;
+      setStatus("loadStatus", "Reading tracker data…");
+      try {
+        const response = await fetch(SUMMARY_API + "?start=" + encodeURIComponent(start) + "&end=" + encodeURIComponent(end), {
+          cache:"no-store",
+          headers:{ "apikey":SUMMARY_KEY, "Authorization":"Bearer " + SUMMARY_KEY }
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Could not load results");
+        report = result;
+        $("previousTotal").textContent = money(report.previousTotal);
+        $("newAmount").textContent = "+" + money(report.newAmount);
+        $("currentTotal").textContent = money(report.currentTotal);
+        $("metrics").classList.remove("hidden");
+        $("editSection").classList.remove("hidden");
+        $("publishSection").classList.add("hidden");
+        $("submissions").value = String(report.newCases);
+        $("referrals").value = "0";
+        renderMovements();
+        setStatus("loadStatus", report.newCases + " new case(s) loaded.", "success");
+        $("editSection").scrollIntoView({ behavior:"smooth", block:"start" });
+      } catch (error) {
+        setStatus("loadStatus", error.message || "Could not load tracker data.", "error");
+      } finally {
+        $("load").disabled = false;
+      }
+    }
+    function typeText(submissions, referrals) {
+      const parts = [];
+      if (submissions) parts.push(submissions + " submission" + (submissions === 1 ? "" : "s"));
+      if (referrals) parts.push(referrals + " referral" + (referrals === 1 ? "" : "s"));
+      return parts.join(" + ") || "case update";
+    }
+    function generateSummary() {
+      if (!report) return;
+      const submissions = Math.max(0, Number($("submissions").value) || 0);
+      const referrals = Math.max(0, Number($("referrals").value) || 0);
+      const rows = movementRows();
+      const lines = [
+        "🔥 " + report.campaignTitle + " | Weekly Summary",
+        "",
+        "Team Sales 从 " + money(report.previousTotal) + " 增加到 " + money(report.currentTotal) + "🔥",
+        "",
+        "本周新增：",
+        "+" + money(report.newAmount) + " ⬆️",
+        "+" + report.newCases + " new cases recorded",
+        "（" + typeText(submissions, referrals) + "）",
+        "",
+        "本周 movement：",
+        ""
+      ];
+      rows.forEach(item => {
+        lines.push("✅ @" + item.displayName);
+        lines.push("+" + money(item.amount));
+        lines.push("+" + typeText(item.submissions, item.referrals));
+        lines.push("");
+      });
+      const notes = $("manualNotes").value.split("\n").map(line => line.trim()).filter(Boolean);
+      notes.forEach(note => { lines.push(note); lines.push(""); });
+      lines.push("目前已经累积：");
+      lines.push(money(report.currentTotal) + " 🔥");
+      lines.push(report.totalCases + " cases recorded");
+      lines.push("");
+      lines.push("过程中有什么问题，可以直接在 group 问，");
+      lines.push("或者找我也可以。");
+      lines.push("");
+      lines.push("继续 Go Go Go🔥");
+      lines.push("");
+      lines.push("最新排名👇");
+      lines.push(report.targetUrl);
+
+      $("title").value = report.campaignTitle + " | Weekly Summary";
+      $("summary").value = "+" + money(report.newAmount) + " · " + report.newCases + " new cases · Total " + money(report.currentTotal) + " 🔥";
+      $("body").value = lines.join("\n");
+      $("targetUrl").value = report.targetUrl;
+      $("publishSection").classList.remove("hidden");
+      document.body.classList.add("campaign-ready");
+      setStatus("publishStatus", "Review the wording, then publish or share.");
+      $("publishSection").scrollIntoView({ behavior:"smooth", block:"start" });
+    }
+    function campaignRequestPayload(action) {
+      const token = $("token").value.trim();
+      if (!token) {
+        setMoreOptions(true, "token");
+        throw new Error("Enter your private admin key.");
+      }
+      if (!report) throw new Error("Load or restore the campaign results first.");
+      if (!$("title").value.trim() || !$("summary").value.trim() || !$("body").value.trim()) throw new Error("Title and update text are required.");
+      const expiresAt = expiryIso("campaignExpiresAt");
+      if ($("campaignExpiresAt").value && (!expiresAt || Date.parse(expiresAt) <= Date.now())) throw new Error("Choose a future expiry time.");
+      const payload = {
+        action,
+        adminToken:token,
+        campaignKey:report.campaignKey,
+        campaignTitle:report.campaignTitle,
+        title:$("title").value,
+        summary:$("summary").value,
+        body:$("body").value,
+        targetUrl:$("targetUrl").value,
+        payload:{
+          startDate:report.startDate,
+          endDate:report.endDate,
+          previousTotal:report.previousTotal,
+          currentTotal:report.currentTotal,
+          newAmount:report.newAmount,
+          newCases:report.newCases,
+          totalCases:report.totalCases,
+          movements:movementRows(),
+          pinned:$("campaignPinned").checked,
+          expiresAt
+        }
+      };
+      if (action === "schedule") {
+        payload.scheduledAt = expiryIso("campaignScheduleAt");
+        if (!payload.scheduledAt || Date.parse(payload.scheduledAt) <= Date.now()) throw new Error("Choose a future schedule time.");
+      }
+      return payload;
+    }
+
+    async function runCampaignAction(action, buttonId) {
+      let payload;
+      try { payload = campaignRequestPayload(action); }
+      catch (error) { return setStatus("publishStatus", error.message, "error"); }
+      const button = $(buttonId);
+      button.disabled = true;
+      setStatus("publishStatus", action === "publish" ? "Publishing to Notification Centre…" : action === "schedule" ? "Scheduling notification…" : "Sending test push…");
+      try {
+        const result = await adminRequest(payload);
+        const push = result.push || {};
+        if (action === "testPublish") {
+          setStatus("publishStatus", push.total ? "Test push sent to " + push.sent + " test device(s)." : "No test device is registered yet.", push.total ? "success" : "error");
+        } else if (action === "schedule") {
+          setStatus("publishStatus", "Scheduled for " + historyDate(result.notification.scheduled_at) + ".", "success");
+          localStorage.removeItem(DRAFT_KEY);
+        } else {
+          setStatus("publishStatus", "Published. Push sent to " + (push.sent || 0) + " of " + (push.total || 0) + " subscribed device(s).", "success");
+          localStorage.removeItem(DRAFT_KEY);
+        }
+        if (action !== "testPublish" && $("historyToken").value.trim()) loadHistory();
+      } catch (error) {
+        setStatus("publishStatus", error.message === "Unauthorized" ? "Admin key is incorrect." : (error.message || "Could not publish."), "error");
+      } finally {
+        button.disabled = false;
+      }
+    }
+    function publishUpdate() { return runCampaignAction("publish", "publish"); }
+    function scheduleCampaignUpdate() { return runCampaignAction("schedule", "scheduleCampaign"); }
+    function testCampaignUpdate() { return runCampaignAction("testPublish", "testCampaign"); }
+    async function shareUpdate() {
+      const text = $("body").value.trim();
+      if (!text) return;
+      if (navigator.share) {
+        try { await navigator.share({ title:$("title").value, text }); return; }
+        catch (error) { if (error && error.name === "AbortError") return; }
+      }
+      window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener");
+    }
+
+    function generalShareText() {
+      const body = $("generalBody").value.trim();
+      const link = $("generalUrl").value.trim();
+      return [body, link].filter(Boolean).join("\n\n");
+    }
+
+    function generalRequestPayload(action) {
+      const token = $("generalToken").value.trim();
+      const title = $("generalTitle").value.trim();
+      const summary = $("generalSummary").value.trim();
+      const body = $("generalBody").value.trim() || summary;
+      if (!token) {
+        setMoreOptions(true, "generalToken");
+        throw new Error("Enter your private admin key.");
+      }
+      if (!title || !summary) throw new Error("Title and message are required.");
+      const expiresAt = expiryIso("generalExpiresAt");
+      if ($("generalExpiresAt").value && (!expiresAt || Date.parse(expiresAt) <= Date.now())) throw new Error("Choose a future expiry time.");
+      const payload = {
+        action,
+        adminToken:token,
+        campaignKey:"general",
+        campaignTitle:$("generalCategory").value,
+        title,
+        summary,
+        body,
+        targetUrl:$("generalUrl").value,
+        payload:{ type:"general", category:$("generalCategory").value, pinned:$("generalPinned").checked, expiresAt }
+      };
+      if (action === "schedule") {
+        payload.scheduledAt = expiryIso("generalScheduleAt");
+        if (!payload.scheduledAt || Date.parse(payload.scheduledAt) <= Date.now()) throw new Error("Choose a future schedule time.");
+      }
+      return payload;
+    }
+
+    async function runGeneralAction(action, buttonId) {
+      let payload;
+      try { payload = generalRequestPayload(action); }
+      catch (error) { return setStatus("generalStatus", error.message, "error"); }
+      const button = $(buttonId);
+      button.disabled = true;
+      setStatus("generalStatus", action === "publish" ? "Publishing General Info…" : action === "schedule" ? "Scheduling General Info…" : "Sending test push…");
+      try {
+        const result = await adminRequest(payload);
+        const push = result.push || {};
+        if (action === "testPublish") {
+          setStatus("generalStatus", push.total ? "Test push sent to " + push.sent + " test device(s)." : "No test device is registered yet.", push.total ? "success" : "error");
+        } else if (action === "schedule") {
+          setStatus("generalStatus", "Scheduled for " + historyDate(result.notification.scheduled_at) + ".", "success");
+          localStorage.removeItem(DRAFT_KEY);
+        } else {
+          setStatus("generalStatus", "Published. Push sent to " + (push.sent || 0) + " of " + (push.total || 0) + " subscribed device(s).", "success");
+          localStorage.removeItem(DRAFT_KEY);
+        }
+        if (action !== "testPublish" && $("historyToken").value.trim()) loadHistory();
+      } catch (error) {
+        setStatus("generalStatus", error.message === "Unauthorized" ? "Admin key is incorrect." : (error.message || "Could not publish."), "error");
+      } finally {
+        button.disabled = false;
+      }
+    }
+    function publishGeneral() { return runGeneralAction("publish", "generalPublish"); }
+    function scheduleGeneralInfo() { return runGeneralAction("schedule", "scheduleGeneral"); }
+    function testGeneralInfo() { return runGeneralAction("testPublish", "testGeneral"); }
+
+    async function shareGeneral() {
+      const text = generalShareText();
+      if (!text) return setStatus("generalStatus", "Enter the Full Information first.", "error");
+      if (navigator.share) {
+        try { await navigator.share({ title:$("generalTitle").value || "General Info", text }); return; }
+        catch (error) { if (error && error.name === "AbortError") return; }
+      }
+      window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener");
+    }
+
+    $("campaignTab").addEventListener("click", () => switchMode("campaign"));
+    $("generalTab").addEventListener("click", () => switchMode("general"));
+    $("keyDatesTab").addEventListener("click", () => switchMode("keydates"));
+    $("notificationsAdminTab").addEventListener("click", () => switchAdminArea("notifications"));
+    $("materialsAdminTab").addEventListener("click", () => switchAdminArea("materials"));
+    $("workspaceSelector").addEventListener("change", event => {
+      const value = event.target.value;
+      if (value === "materials") return switchAdminArea("materials");
+      switchAdminArea("notifications");
+      switchMode(value);
+    });
+    $("moreOptionsButton").addEventListener("click", () => setMoreOptions(document.body.classList.contains("more-closed")));
+    $("load").addEventListener("click", loadResults);
+    $("generate").addEventListener("click", generateSummary);
+    $("publish").addEventListener("click", publishUpdate);
+    $("scheduleCampaign").addEventListener("click", scheduleCampaignUpdate);
+    $("testCampaign").addEventListener("click", testCampaignUpdate);
+    $("share").addEventListener("click", shareUpdate);
+    $("generalPublish").addEventListener("click", publishGeneral);
+    $("scheduleGeneral").addEventListener("click", scheduleGeneralInfo);
+    $("testGeneral").addEventListener("click", testGeneralInfo);
+    $("generalShare").addEventListener("click", shareGeneral);
+    $("saveCampaignDraft").addEventListener("click", () => saveDraft("campaign"));
+    $("clearCampaignDraft").addEventListener("click", () => clearDraft("campaign"));
+    $("saveGeneralDraft").addEventListener("click", () => saveDraft("general"));
+    $("clearGeneralDraft").addEventListener("click", () => clearDraft("general"));
+    $("loadHistory").addEventListener("click", loadHistory);
+    $("loadKeyDateTemplates").addEventListener("click", loadKeyDateTemplates);
+    $("saveKeyDateTemplates").addEventListener("click", saveKeyDateTemplates);
+    $("registerTestDevice").addEventListener("click", registerThisTestDevice);
+    $("uploadMaterial").addEventListener("click", uploadMaterial);
+    $("loadMaterialsAdmin").addEventListener("click", loadMaterialsAdmin);
+    $("historyList").addEventListener("click", async event => {
+      const button = event.target.closest("[data-delete-id]");
+      if (!button) return;
+      const token = $("historyToken").value.trim();
+      if (!token) return setStatus("historyStatus", "Enter your private admin key.", "error");
+      if (!confirm("Remove this notification from the App? Push notifications already delivered cannot be recalled.")) return;
+      button.disabled = true;
+      try {
+        await adminRequest({ action:"deleteUpdate", adminToken:token, id:button.dataset.deleteId });
+        setStatus("historyStatus", "Notification removed from the App.", "success");
+        await loadHistory();
+      } catch (error) {
+        setStatus("historyStatus", error.message === "Unauthorized" ? "Admin key is incorrect." : (error.message || "Could not remove notification."), "error");
+        button.disabled = false;
+      }
+    });
+    $("scheduledList").addEventListener("click", async event => {
+      const button = event.target.closest("[data-cancel-schedule]");
+      if (!button || button.disabled) return;
+      const token = $("historyToken").value.trim();
+      if (!token) return setStatus("historyStatus", "Enter your private admin key.", "error");
+      if (!confirm("Cancel this scheduled notification?")) return;
+      button.disabled = true;
+      try {
+        await adminRequest({ action:"cancelScheduled", adminToken:token, id:button.dataset.cancelSchedule });
+        setStatus("historyStatus", "Scheduled notification cancelled.", "success");
+        await loadHistory();
+      } catch (error) {
+        setStatus("historyStatus", error.message === "Unauthorized" ? "Admin key is incorrect." : (error.message || "Could not cancel schedule."), "error");
+        button.disabled = false;
+      }
+    });
+    ["token","generalToken","historyToken","deviceToken","keyDateToken","materialsToken"].forEach(id => $(id).addEventListener("input", event => syncAdminTokens(event.target.value)));
+    [
+      "startDate","endDate","submissions","referrals","manualNotes","title","summary","body","targetUrl","campaignPinned","campaignExpiresAt","campaignScheduleAt",
+      "generalCategory","generalTitle","generalSummary","generalBody","generalUrl","generalPinned","generalExpiresAt","generalScheduleAt"
+    ].forEach(id => {
+      $(id).addEventListener("input", scheduleDraftSave);
+      $(id).addEventListener("change", scheduleDraftSave);
+    });
+    setDefaultWeek();
+    restoreDraft();
+    try { syncAdminTokens(sessionStorage.getItem("ngcAdminKey") || ""); } catch {}
+    switchAdminArea("notifications");
+    updatePreviews();
+  </script>
+</body>
+</html>

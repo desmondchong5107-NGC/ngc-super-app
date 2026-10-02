@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Notification Empty State Comparison</title>
+  <style>
+    * { box-sizing:border-box; }
+    body { margin:0; padding:24px; color:#071c36; background:#eef4fa; font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif; }
+    main { width:min(100%,980px); margin:auto; display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    figure { margin:0; padding:14px; border-radius:24px; background:white; box-shadow:0 18px 50px -36px rgba(4,39,82,.5); }
+    figcaption { margin:0 0 12px; color:#5e738c; font-size:13px; font-weight:700; }
+    img { width:100%; height:auto; display:block; border-radius:16px; }
+    @media (max-width:700px) { main { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <figure><figcaption>Reference — remove the outer frame</figcaption><img src="reference.png" alt="Reference empty state"></figure>
+    <figure><figcaption>Current prototype — borderless empty state</figcaption><img src="current.png" alt="Current notification centre"></figure>
+  </main>
+</body>
+</html>

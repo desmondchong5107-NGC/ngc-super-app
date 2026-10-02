@@ -1,0 +1,10 @@
+{
+  "enabled": true,
+  "title": "Campaign",
+  "itemTitle": "HERO 88 Project",
+  "description": "View campaign progress, ranking and updates",
+  "url": "https://hero88-tracker.vercel.app/view",
+  "badge": "",
+  "startDate": null,
+  "endDate": null
+}
