@@ -3,10 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node work/build_ngc_super_app.mjs",
+    "build": "node work/build-sales.mjs",
     "vercel-build": "npm run preflight",
-    "verify": "node work/verify_ngc_super_app.mjs",
-    "preflight": "node work/preflight_release.mjs"
+    "verify": "node work/test-sales.mjs",
+    "preflight": "node work/preflight_release.mjs",
+    "test": "node work/test-sales.mjs"
   },
   "devDependencies": {
     "lucide-static": "^1.26.0",

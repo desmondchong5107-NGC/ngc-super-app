@@ -1,0 +1,11 @@
+import fs from 'node:fs';import path from 'node:path';
+const root=path.resolve(import.meta.dirname,'..');const baseline=fs.readFileSync(path.join(root,'work/sales/baseline-super-app.html'),'utf8');
+const config=JSON.parse(fs.readFileSync(path.join(root,'work/sales/config.json'),'utf8'));const key=config.public_key;
+const vendor=fs.readFileSync(path.join(root,'work/sales/supabase-2.57.4.js'),'utf8');const sales=fs.readFileSync(path.join(root,'work/sales/module.html'),'utf8').replace('/* SALES_VENDOR */',vendor.replace(/<\/script/gi,'<\\/script')).replace('/* SALES_CONFIG */',`const SALES_URL="https://ejhwbovqtcujjwvjniyt.supabase.co",SALES_KEY=${JSON.stringify(key)};`);
+let html=baseline.replace('const apps = {','const apps = {\n      sales: {name:"Sales",subtitle:"Submit and track your sales",icon:"icon-commission.svg",html:'+JSON.stringify(Buffer.from(sales).toString('base64'))+'},');
+html=html.replace('const frames = {','const frames = {\n      sales:document.getElementById("salesFrame"),');
+html=html.replace('<section class="app-grid" aria-label="Available tools">','<section class="app-grid" aria-label="Available tools">\n        <button class="app-card" type="button" data-open="sales" aria-label="Open Sales"><span class="app-icon comm-icon" aria-hidden="true"><img src="icon-commission.svg" alt=""></span><span class="app-card-copy"><h2>Sales</h2><small>Submit and track your sales</small></span><span class="app-card-chevron" aria-hidden="true"><img src="icon-chevron-right.svg" alt=""></span></button>');
+html=html.replace('<iframe id="epfFrame"','<iframe id="salesFrame" data-app="sales" title="Sales" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>\n      <iframe id="epfFrame"');
+html=html.replace('const initial = location.hash.slice(1);','const initial = location.hash.includes("access_token=") ? "sales" : location.hash.slice(1);');
+for(const f of ['index.html','ngc_super_app.html'])fs.writeFileSync(path.join(root,'outputs',f),html);
+console.log('Embedded Sales with pinned Supabase JS 2.57.4; original modules and service worker untouched.');
