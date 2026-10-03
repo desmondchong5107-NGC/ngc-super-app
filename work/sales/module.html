@@ -8,25 +8,6 @@
 'use strict';
 /* SALES_CONFIG */
 const sb=supabase.createClient(SALES_URL,SALES_KEY,{auth:{storageKey:'ngc-sales-auth-v1',persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
-// Opt-in Preview diagnostics contain state metadata only. Normal UI is unchanged.
-if(typeof parent!=='undefined'&&new URLSearchParams(parent.location.search).has('sales-auth-diagnostics')){
-
-// Preview-only diagnostics: boolean metadata, no credentials.
-const authTrace=[];
-const authPanel=document.createElement('details');authPanel.open=true;authPanel.style.cssText='margin:20px;padding:16px;border:1px solid #ddd;background:#fff';
-authPanel.innerHTML='<summary>Preview Auth diagnostics (no credentials)</summary><pre style="white-space:pre-wrap;font-size:11px"></pre><button type="button">Check Auth state</button><button type="button" id="auth-read-probe">Check Sales API access</button>';document.body.append(authPanel);
-function traceAuth(stage,fields={}){authTrace.push({stage,...fields});authPanel.querySelector('pre').textContent=JSON.stringify(authTrace.slice(-30),null,2);}
-function storageState(){try{return {storagePresent:localStorage.getItem('ngc-sales-auth-v1')!==null};}catch{return {storageUnavailable:true};}}
-const getDiagnosticSession=async stage=>{const {data,error}=await sb.auth.getSession();traceAuth(stage,{sessionPresent:!!data.session,errorPresent:!!error,errorCode:error?.code||null,errorStatus:error?.status||null,...storageState()});};
-authPanel.querySelector('button').onclick=()=>getDiagnosticSession('manual-check');
-authPanel.querySelector('#auth-read-probe').onclick=async()=>{const r=await sb.from('agent_user_links').select('agent_id').limit(1);traceAuth('sales-api-read',{denied:!!r.error,errorCode:r.error?.code||null});};
-sb.auth.onAuthStateChange((event,session)=>traceAuth('auth-event',{event,sessionPresent:!!session,...storageState()}));
-window.addEventListener('storage',e=>{if(e.key==='ngc-sales-auth-v1')traceAuth('storage-event',storageState());});
-const diagnosticSignOut=sb.auth.signOut.bind(sb.auth);
-sb.auth.signOut=async options=>{await getDiagnosticSession('before-local-signout');const result=await diagnosticSignOut(options);traceAuth('local-signout-result',{scope:options?.scope||'global',errorPresent:!!result.error,errorCode:result.error?.code||null,errorStatus:result.error?.status||null,...storageState()});await getDiagnosticSession('after-local-signout');setTimeout(()=>getDiagnosticSession('delayed-after-signout'),2000);return result;};
-getDiagnosticSession('preview-start');
-
-}
 const root=document.getElementById('root'),types=['Cash EQ','EPF','PRS','Cash MM','Others'],transactions=['N. Business','Top Up','Switching'],labels={pending:'Pending',changes_requested:'Changes Requested',approved:'Approved',rejected:'Rejected'};
 let user=null,link=null,agent='',cases=[],counts={},view='home',selected=null,draft=null,busy=false,epoch=0,email='',success='',logoutInFlight=false;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
