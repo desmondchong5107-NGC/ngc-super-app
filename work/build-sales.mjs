@@ -8,5 +8,18 @@ html=html.replace('<section class="app-grid" aria-label="Available tools">','<se
 html=html.replace('<h2>Commission Calculator</h2>','<h2>Commission</h2>');
 html=html.replace('<iframe id="epfFrame"','<iframe id="salesFrame" data-app="sales" title="Sales" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>\n      <iframe id="epfFrame"');
 html=html.replace('const initial = location.hash.slice(1);','const initial = location.hash.includes("access_token=") ? "sales" : location.hash.slice(1);');
+
+const salesPushBridge=`
+/* SALES_PUSH_DEVICE_BRIDGE_START */
+window.NGCSalesPushDevice={async endpoint(enable=false){
+ if(!("PushManager" in window)||!("Notification" in window))throw Error("Push notifications are not supported on this device.");
+ const registration=await getPushRegistration();
+ let current=await registration.pushManager.getSubscription();
+ if(!current&&enable){await toggleNotifications();current=await registration.pushManager.getSubscription();}
+ return current?.endpoint||null;
+}};
+/* SALES_PUSH_DEVICE_BRIDGE_END */
+`;
+html=html.replace('const initial = location.hash.includes("access_token=")',salesPushBridge.slice(1)+'const initial = location.hash.includes("access_token=")');
 for(const f of ['index.html','ngc_super_app.html'])fs.writeFileSync(path.join(root,'outputs',f),html);
 console.log('Embedded Sales with pinned Supabase JS 2.57.4; original modules and service worker untouched.');
